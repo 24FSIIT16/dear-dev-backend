@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int userId;
+    private int id;
     private String firstname;
     private String lastname;
 }
