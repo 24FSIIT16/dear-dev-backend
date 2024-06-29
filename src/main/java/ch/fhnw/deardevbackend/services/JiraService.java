@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
@@ -27,7 +28,7 @@ public class JiraService {
 
     // temp. method to test Jira API - later on the user should be able to authenticate with Jira
     public String getJiraTasks() {
-        String url = jiraApiBaseUrl + "/rest/api/2/search?jql=assignee=currentuser()";
+        String url = jiraApiBaseUrl + "/rest/api/2/myself";
 
         HttpHeaders headers = new HttpHeaders();
         String auth = "smuefsmuef@gmail.com" + ":" + jiraApiToken;
@@ -37,7 +38,13 @@ public class JiraService {
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-        return response.getBody();
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            System.out.println("Response: " + response.getBody());
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            System.err.println("Error response: " + e.getResponseBodyAsString());
+            throw e;
+        }
     }
 }
