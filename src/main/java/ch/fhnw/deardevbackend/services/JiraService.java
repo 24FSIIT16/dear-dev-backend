@@ -28,7 +28,7 @@ public class JiraService {
 
     // temp. method to test Jira API - later on the user should be able to authenticate with Jira
     public String getJiraTasks() {
-        String url = jiraApiBaseUrl + "/rest/api/2/myself";
+        String url = jiraApiBaseUrl + "/rest/api/3/search";
 
         HttpHeaders headers = new HttpHeaders();
         String auth = "smuefsmuef@gmail.com" + ":" + jiraApiToken;
