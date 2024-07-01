@@ -32,7 +32,9 @@ jobs:
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-    - name: Build and push Docker images
+    - name: Build and push Docker image
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest .
-        docker push ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest
+        REPO_NAME=ghcr.io/${{ github.repository_owner }}/dear-dev-backend
+        LOWER_REPO_NAME=$(echo $REPO_NAME | tr '[A-Z]' '[a-z]')
+        docker build -t $LOWER_REPO_NAME:latest .
+        docker push $LOWER_REPO_NAME:latest
