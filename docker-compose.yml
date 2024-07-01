@@ -5,11 +5,11 @@ services:
     image: postgres:13
     container_name: postgres_db
     environment:
-      POSTGRES_USER: myuser
+      POSTGRES_USER: yappi_db_admin
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: yappi_db
     ports:
-        - "5432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -20,10 +20,10 @@ services:
     container_name: yappi_backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/yappi_db
-      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_USERNAME: yappi_db_admin
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
     depends_on:
-        - db
+      - db
 
 volumes:
-    postgres_data:
+  postgres_data:

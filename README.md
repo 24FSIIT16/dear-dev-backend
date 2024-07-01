@@ -23,3 +23,9 @@ sudo docker stop $(sudo docker ps -q)  true
 sudo docker rm $(sudo docker ps -a -q)  true
 sudo docker image rm $(sudo docker images -q) || true
 ```
+
+Delete docker volumes:
+
+```
+docker volumne prune -f
+```
