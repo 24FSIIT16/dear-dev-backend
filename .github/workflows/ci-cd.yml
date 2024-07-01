@@ -28,3 +28,11 @@ jobs:
 
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+    - name: Build and push Docker images
+      run: |
+        docker build -t ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest .
+        docker push ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest
