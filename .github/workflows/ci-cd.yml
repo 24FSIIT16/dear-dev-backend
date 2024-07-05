@@ -1,0 +1,40 @@
+name: CI / CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'adopt'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        REPO_NAME=ghcr.io/${{ github.repository_owner }}/dear-dev-backend
+        LOWER_REPO_NAME=$(echo $REPO_NAME | tr '[A-Z]' '[a-z]')
+        docker build -t $LOWER_REPO_NAME:latest .
+        docker push $LOWER_REPO_NAME:latest
