@@ -54,4 +54,14 @@ public class JWTUtil {
         final int tokenUserId = extractUserId(token);
         return (email.equals(user.getEmail()) && tokenUserId == user.getId() && !isTokenExpired(token));
     }
+
+    public String generateToken(User user) {
+        return Jwts.builder()
+                .claim("id", user.getId())
+                .claim("email", user.getEmail())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, secret.getBytes())
+                .compact();
+    }
 }
