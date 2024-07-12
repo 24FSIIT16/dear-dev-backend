@@ -1,5 +1,6 @@
 package ch.fhnw.deardevbackend.controller;
 
+import ch.fhnw.deardevbackend.dto.UserAndProviderDTO;
 import ch.fhnw.deardevbackend.entities.User;
 import ch.fhnw.deardevbackend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,10 @@ public class UserController {
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Integer id) {
         return ResponseEntity.ok().body(userService.getUserById(id));
+    }
+
+    @GetMapping("/user-with-provider/{id}")
+    public ResponseEntity<UserAndProviderDTO> getUserByProviderById(@PathVariable Integer id) {
+        return ResponseEntity.ok().body(userService.getUserWithProviderById(id));
     }
 }
