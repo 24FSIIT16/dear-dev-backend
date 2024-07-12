@@ -26,12 +26,24 @@ public class Account {
     @Column(name = "providerAccountId")
     private String providerAccountId;
 
+
     @Column(name = "refresh_token")
-    private String refresh_token;
-    private String access_token;
-    private Long expires_at;
-    private String id_token;
+    private String refreshToken;
+
+    @Column(name = "access_token")
+    private String accessToken;
+
+    @Column(name = "expires_at")
+    private Long expiresAt;
+
+    @Column(name = "id_token")
+    private String idToken;
+
     private String scope;
-    private String session_state;
-    private String token_type;
+
+    @Column(name = "session_state")
+    private String sessionState;
+
+    @Column(name = "token_type")
+    private String tokenType;
 }
