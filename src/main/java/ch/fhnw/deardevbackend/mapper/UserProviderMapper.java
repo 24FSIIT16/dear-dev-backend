@@ -14,6 +14,7 @@ public interface UserProviderMapper {
     @Mapping(source = "user.id", target = "id")
     @Mapping(source = "user.name", target = "name")
     @Mapping(source = "user.email", target = "email")
+    @Mapping(source = "user.username", target = "username")
     @Mapping(source = "provider", target = "provider")
     UserAndProviderDTO toDto(User user, String provider);
 }

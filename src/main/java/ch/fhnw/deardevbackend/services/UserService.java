@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,17 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
         String provider = accountRepository.findProviderByUserId(id);
         return userMapper.toDto(user, provider);
+    }
+
+    @Transactional
+    public void updateUser(int id, String username) {
+        User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
+        if (user != null) {
+            user.setUsername(username);
+            userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("User not found");
+        }
     }
 
     // used for JWT filter
