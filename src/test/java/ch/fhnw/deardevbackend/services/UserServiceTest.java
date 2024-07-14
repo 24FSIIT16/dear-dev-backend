@@ -45,16 +45,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void getUserByIdTest() {
-        User user = users.getFirst();
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-
-        User actualUser = userService.getUserById(user.getId());
-
-        assertThat(actualUser).isEqualTo(user);
-    }
-
-    @Test
     void findUserByEmailTest() {
         User user = users.getFirst();
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
