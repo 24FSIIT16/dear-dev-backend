@@ -23,16 +23,16 @@ public class Team {
     private String name;
 
     @Column(name = "current_sprint_id")
-    private int currentSprintId;
+    private Integer currentSprintId;
 
     @Column(name = "config_id")
-    private int configId;
+    private Integer configId;
 
     @Column(name = "code")
     private String code;
 
     @Column(name = "created_by")
-    private int createdBy;
+    private Integer createdBy;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;

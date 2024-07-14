@@ -23,8 +23,9 @@ public class TeamMember {
     @Column(name = "team_id")
     private int teamId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private String role;
+    private Role role;
 
     @Column(name = "active")
     private boolean active;
