@@ -1,9 +1,12 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.dto.UserAndProviderDTO;
+import ch.fhnw.deardevbackend.dto.UserDTO;
 import ch.fhnw.deardevbackend.entities.User;
+import ch.fhnw.deardevbackend.mapper.UserMapper;
 import ch.fhnw.deardevbackend.mapper.UserProviderMapper;
 import ch.fhnw.deardevbackend.repositories.AccountRepository;
+import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
 import ch.fhnw.deardevbackend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.OpenApiResourceNotFoundException;
@@ -22,20 +25,27 @@ public class UserService {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private UserProviderMapper userMapper;
+    private TeamMemberRepository teamMemberRepository;
+    @Autowired
+    private UserProviderMapper userProviderMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User getUserById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+    public UserDTO getUserById(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
+        String provider = accountRepository.findProviderByUserId(id);
+        Boolean isInTeam = teamMemberRepository.userIsInTeam(id);
+        return userMapper.toDto(user, provider, isInTeam);
     }
 
     public UserAndProviderDTO getUserWithProviderById(Integer id) {
         User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
         String provider = accountRepository.findProviderByUserId(id);
-        return userMapper.toDto(user, provider);
+        return userProviderMapper.toDto(user, provider);
     }
 
     @Transactional
