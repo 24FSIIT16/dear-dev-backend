@@ -2,7 +2,7 @@ name: CI / CD
 
 on:
   push:
-    branches: ["main"]
+    branches: ["*"]
   pull_request:
     branches: ["main"]
 
@@ -41,3 +41,14 @@ jobs:
         LOWER_REPO_NAME=$(echo $REPO_NAME | tr '[A-Z]' '[a-z]')
         docker build -t $LOWER_REPO_NAME:latest .
         docker push $LOWER_REPO_NAME:latest
+
+    - name: Deploy to server
+      env:
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest && \
+             echo '${{ secrets.SSH_ITALIAN_PASSWORD }}' | sudo -S su - ${{ secrets.SSH_ITALIAN_USER }} -c '
+        cd ~/yappi &&
+        docker-compose down && \
+        JWT_SECRET=${{ secrets.JWT_SECRET }} DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} docker-compose up -d"
