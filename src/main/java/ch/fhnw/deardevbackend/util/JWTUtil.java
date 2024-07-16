@@ -13,7 +13,7 @@ import java.util.function.Function;
 @Component
 public class JWTUtil {
 
-    @Value("${JWT_SECRET}")
+    @Value("${jwt.secret}")
     private String secret;
 
     public String extractEmail(String token) {
