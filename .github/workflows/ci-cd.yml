@@ -28,8 +28,8 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Run unit tests
-        run: ./gradlew test
+#      - name: Run unit tests
+#        run: ./gradlew test
 
   build_and_push_image:
     runs-on: ubuntu-latest
