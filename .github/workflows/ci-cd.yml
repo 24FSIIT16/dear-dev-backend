@@ -31,8 +31,15 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
-#      - name: Run unit tests
-#        run: ./gradlew test
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          REPO_NAME=ghcr.io/${{ github.repository_owner }}/dear-dev-backend
+          LOWER_REPO_NAME=$(echo $REPO_NAME | tr '[A-Z]' '[a-z]')
+          docker build -t $LOWER_REPO_NAME:latest .
+          docker push $LOWER_REPO_NAME:latest
 
   build_and_push_image:
     runs-on: ubuntu-latest
