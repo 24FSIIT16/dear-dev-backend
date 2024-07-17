@@ -52,7 +52,7 @@ jobs:
         SSH_ITALIAN_PASSWORD: ${{ secrets.SSH_ITALIAN_PASSWORD }}
         SSH_ITALIAN_USER: ${{ secrets.SSH_ITALIAN_USER }}
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest && \
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ghcr.io/24FSIIT16/dear-dev-backend:latest && \
              echo '${{ secrets.SSH_ITALIAN_PASSWORD }}' | sudo -S su - ${{ secrets.SSH_ITALIAN_USER }} -c '
         cd ~/yappi &&
         docker-compose down && \
