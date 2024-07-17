@@ -27,6 +27,9 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+        env:
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
 #      - name: Run unit tests
 #        run: ./gradlew test
