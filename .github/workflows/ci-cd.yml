@@ -46,9 +46,15 @@ jobs:
       env:
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        SSH_ITALIAN_PASSWORD: ${{ secrets.SSH_ITALIAN_PASSWORD }}
+        SSH_ITALIAN_USER: ${{ secrets.SSH_ITALIAN_USER }}
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker pull ghcr.io/${{ github.repository_owner }}/dear-dev-backend:latest && \
              echo '${{ secrets.SSH_ITALIAN_PASSWORD }}' | sudo -S su - ${{ secrets.SSH_ITALIAN_USER }} -c '
         cd ~/yappi &&
         docker-compose down && \
         JWT_SECRET=${{ secrets.JWT_SECRET }} DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} docker-compose up -d"
+     
