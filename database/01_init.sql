@@ -105,7 +105,7 @@ CREATE TABLE overall_happiness_survey
 (
     id        SERIAL PRIMARY KEY,
     user_id   INTEGER NOT NULL,
-    submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     score     INTEGER NOT NULL,
 
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
@@ -115,7 +115,7 @@ CREATE TABLE work_kind_happiness_survey
 (
     id           SERIAL PRIMARY KEY,
     user_id      INTEGER NOT NULL,
-    submitted    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     score        INTEGER NOT NULL,
     work_kind_id INTEGER NOT NULL,
 
@@ -127,7 +127,7 @@ CREATE TABLE emotion_survey
 (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER NOT NULL,
-    submitted  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     score      INTEGER NOT NULL,
     emotion_id INTEGER NOT NULL,
 
