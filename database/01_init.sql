@@ -12,7 +12,7 @@ CREATE TABLE verification_token
 CREATE TABLE accounts
 (
     id                  SERIAL,
-    "userId"            INTEGER      NOT NULL,
+    "user_id"           INTEGER      NOT NULL,
     type                VARCHAR(255) NOT NULL,
     provider            VARCHAR(255) NOT NULL,
     "providerAccountId" VARCHAR(255) NOT NULL,
@@ -82,3 +82,55 @@ CREATE TABLE team_config
 -- Add constraints to the tables
 ALTER TABLE team
     ADD CONSTRAINT fk_team_team_config FOREIGN KEY (config_id) REFERENCES team_config (id);
+
+-- Create tables for DEAR-120-SURVEY DATA
+------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE work_kind
+(
+    id      SERIAL PRIMARY KEY,
+    name    VARCHAR(255) NOT NULL,
+    team_id INTEGER,
+
+    CONSTRAINT fk_team FOREIGN KEY (team_id) REFERENCES team (id)
+);
+
+CREATE TABLE emotion
+(
+    id   SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE overall_happiness_survey
+(
+    id        SERIAL PRIMARY KEY,
+    user_id   INTEGER NOT NULL,
+    submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    score     INTEGER NOT NULL,
+
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE work_kind_happiness_survey
+(
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER NOT NULL,
+    submitted    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    score        INTEGER NOT NULL,
+    work_kind_id INTEGER NOT NULL,
+
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_work_kind FOREIGN KEY (work_kind_id) REFERENCES work_kind (id)
+);
+
+CREATE TABLE emotion_survey
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER NOT NULL,
+    submitted  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    score      INTEGER NOT NULL,
+    emotion_id INTEGER NOT NULL,
+
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_emotion FOREIGN KEY (emotion_id) REFERENCES emotion (id)
+);
