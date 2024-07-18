@@ -61,14 +61,17 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         SSH_USER: ${{ secrets.SSH_USER }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         SSH_ITALIAN_PASSWORD: ${{ secrets.SSH_ITALIAN_PASSWORD }}
         SSH_ITALIAN_USER: ${{ secrets.SSH_ITALIAN_USER }}
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<'EOF'
         echo '${{ secrets.SSH_ITALIAN_PASSWORD }}' | sudo -S su - ${{ secrets.SSH_ITALIAN_USER }} -c '
         cd ~/yappi &&
-        docker-compose down &&
+        docker-compose stop backend nginx &&
+        docker-compose rm backend nginx &&
         docker pull ghcr.io/24FSIIT16/dear-dev-backend:latest
         JWT_SECRET=${{ secrets.JWT_SECRET }} DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} docker-compose up -d'
         EOF
+
+    - name: cleanup
+      run: rm -rf ~/.ssh
