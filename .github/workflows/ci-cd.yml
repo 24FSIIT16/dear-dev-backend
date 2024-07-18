@@ -12,6 +12,21 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: ${{ secrets.DATABASE_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          POSTGRES_DB: yappi_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,6 +39,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+
+      - name: Wait for PostgreSQL to be ready
+        run: dockerize -wait tcp://localhost:5432 -timeout 1m
 
       - name: Build with Gradle
         run: ./gradlew build
@@ -43,7 +61,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main'
     needs: build_and_test
 
     steps:
@@ -58,6 +76,7 @@ jobs:
     - name: Deploy to server
       env:
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        DATABASE_USER: ${{ secrets.DATABASE_USER }}
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         SSH_USER: ${{ secrets.SSH_USER }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
