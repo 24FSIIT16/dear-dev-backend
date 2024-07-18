@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// todo add dto with repsonse entities..
-// todo prepare first frontend
 @RestController
 @RequestMapping("/v1/overall-happiness")
 public class OverallHappinessSurveyController {
