@@ -43,7 +43,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+#    if: github.ref == 'refs/heads/main'
     needs: build_and_test
 
     steps:
@@ -61,7 +61,6 @@ jobs:
         JWT_SECRET: ${{ secrets.JWT_SECRET }}
         SSH_USER: ${{ secrets.SSH_USER }}
         SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         SSH_ITALIAN_PASSWORD: ${{ secrets.SSH_ITALIAN_PASSWORD }}
         SSH_ITALIAN_USER: ${{ secrets.SSH_ITALIAN_USER }}
       run: |
@@ -70,5 +69,8 @@ jobs:
         cd ~/yappi &&
         docker-compose down &&
         docker pull ghcr.io/24FSIIT16/dear-dev-backend:latest
-        JWT_SECRET=${{ secrets.JWT_SECRET }} DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} docker-compose up -d'
+        JWT_SECRET=${{ secrets.JWT_SECRET }} DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} docker-compose up -d backend'
         EOF
+
+    - name: cleanup
+      run: rm -rf ~/.ssh
