@@ -15,11 +15,18 @@ public class SurveyController {
     @Autowired
     private SurveyService service;
 
+    // todo ensure only logged in user can post his entries
+
     @PostMapping("/happiness")
     public ResponseEntity<HappinessSurvey> submitHappinessSurvey(@RequestBody SubmitHappinessSurveyDTO request) {
-        // todo ensure only logged in user can post his entries
         HappinessSurvey data = service.save(request);
         return ResponseEntity.ok().body(data);
+    }
+
+    @GetMapping("/happiness/average/{userId}")
+    public ResponseEntity<Integer> getAverageScoreByUserId(@PathVariable int userId) {
+        Integer averageScore = service.getAverageScoreByUserId(userId);
+        return ResponseEntity.ok().body(averageScore);
     }
 
     @GetMapping("/happiness/{userId}")
@@ -27,8 +34,4 @@ public class SurveyController {
         return service.getAllByUserId(userId);
     }
 
-    @GetMapping("happiness/{userId}/average")
-    public Double getAverageScoreByUserId(@PathVariable Integer userId) {
-        return service.getAverageScoreByUserId(userId);
-    }
 }

@@ -27,12 +27,26 @@ public class SurveyService {
         return happinessSurveyRepository.save(survey);
     }
 
-
     public List<HappinessSurvey> getAllByUserId(Integer userId) {
         return happinessSurveyRepository.findByUserId(userId);
     }
 
-    public Double getAverageScoreByUserId(Integer userId) {
-        return happinessSurveyRepository.findAverageScoreByUserId(userId);
+
+    @Transactional(readOnly = true)
+    public Integer getAverageScoreByUserId(int userId) {
+        List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
+
+        if (dailyAverages.isEmpty()) {
+            return null;
+        }
+
+        double total = 0;
+        for (Object[] dailyAverage : dailyAverages) {
+            total += (Double) dailyAverage[1];
+        }
+
+        double overallAverage = total / dailyAverages.size();
+        return (int) Math.round(overallAverage);
     }
+
 }
