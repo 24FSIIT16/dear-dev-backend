@@ -32,12 +32,12 @@ VALUES ('Relaxed'),
        ('Stressed'),
        ('Exhausted'),
        ('Sick');
-INSERT INTO overall_happiness_survey (user_id, score)
+INSERT INTO happiness_survey (user_id, score)
 VALUES (1, 4),
        (1, 2),
        (1, 3),
        (2, 1);
-INSERT INTO work_kind_happiness_survey (user_id, score, work_kind_id)
+INSERT INTO work_kind_survey (user_id, score, work_kind_id)
 VALUES (1, 6, 1),
        (2, 7, 2);
 INSERT INTO emotion_survey (user_id, score, emotion_id)

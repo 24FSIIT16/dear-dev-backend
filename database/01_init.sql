@@ -101,7 +101,7 @@ CREATE TABLE emotion
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE overall_happiness_survey
+CREATE TABLE happiness_survey
 (
     id        SERIAL PRIMARY KEY,
     user_id   INTEGER NOT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE overall_happiness_survey
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-CREATE TABLE work_kind_happiness_survey
+CREATE TABLE work_kind_survey
 (
     id           SERIAL PRIMARY KEY,
     user_id      INTEGER NOT NULL,
