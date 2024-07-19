@@ -4,11 +4,14 @@ import ch.fhnw.deardevbackend.controller.exceptions.ErrorResponse;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.CreateTeamDTO;
 import ch.fhnw.deardevbackend.dto.JoinTeamDTO;
+import ch.fhnw.deardevbackend.dto.TeamAndRoleDTO;
 import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("v1/team")
@@ -16,6 +19,11 @@ public class TeamController {
 
     @Autowired
     private TeamService teamService;
+
+    @GetMapping("/user/{userId}")
+    public List<TeamAndRoleDTO> getTeamsAndRoleByUserId(@PathVariable Integer userId) {
+        return teamService.getTeamsAndRoleByUserId(userId);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Team> createTeam(@RequestBody CreateTeamDTO request) {
