@@ -12,7 +12,7 @@ CREATE TABLE verification_token
 CREATE TABLE accounts
 (
     id                  SERIAL,
-    "user_id"           INTEGER      NOT NULL,
+    "userId"            INTEGER      NOT NULL,
     type                VARCHAR(255) NOT NULL,
     provider            VARCHAR(255) NOT NULL,
     "providerAccountId" VARCHAR(255) NOT NULL,
