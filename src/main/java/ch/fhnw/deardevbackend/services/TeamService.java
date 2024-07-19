@@ -3,10 +3,12 @@ package ch.fhnw.deardevbackend.services;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.CreateTeamDTO;
 import ch.fhnw.deardevbackend.dto.JoinTeamDTO;
+import ch.fhnw.deardevbackend.dto.TeamAndRoleDTO;
 import ch.fhnw.deardevbackend.entities.Role;
 import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.entities.TeamMember;
 import ch.fhnw.deardevbackend.mapper.CreateTeamMapper;
+import ch.fhnw.deardevbackend.mapper.TeamAndRoleMapper;
 import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
 import ch.fhnw.deardevbackend.repositories.TeamRepository;
 import ch.fhnw.deardevbackend.util.TeamCodeGenerator;
@@ -15,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,19 @@ public class TeamService {
     private TeamMemberRepository teamMemberRepository;
     @Autowired
     private CreateTeamMapper createTeamMapper;
+    @Autowired
+    private TeamAndRoleMapper teamAndRoleMapper;
+
+    public List<TeamAndRoleDTO> getTeamsAndRoleByUserId(Integer userId) {
+        List<TeamMember> teamMembers = teamMemberRepository.findByUserId(userId);
+
+        return teamMembers.stream()
+                .map(member -> {
+                    Team team = teamRepository.findById(member.getTeamId()).orElseThrow(() -> new YappiException("Team not found with id: " + member.getTeamId()));
+                    return teamAndRoleMapper.toDTO(team, member.getRole());
+                })
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public Team createTeam(CreateTeamDTO teamDTO) {

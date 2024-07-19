@@ -38,5 +38,5 @@ public class Team {
     private OffsetDateTime createdAt;
 
     @Column(name = "active")
-    private boolean active;
+    private Boolean active;
 }
