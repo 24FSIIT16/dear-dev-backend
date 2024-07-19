@@ -18,9 +18,9 @@ public class HappinessSurvey {
     private int id;
 
     @Column(name = "user_id")
-    private String userId;
+    private int userId;
 
-    @Column(name = "submitted")
+    @Column(name = "submitted", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private String submitted;
 
     @Column(name = "score")

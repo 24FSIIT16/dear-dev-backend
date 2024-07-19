@@ -1,8 +1,10 @@
 package ch.fhnw.deardevbackend.controller;
 
+import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 import ch.fhnw.deardevbackend.services.SurveyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,8 +16,9 @@ public class SurveyController {
     private SurveyService service;
 
     @PostMapping("/happiness")
-    public HappinessSurvey save(@RequestBody HappinessSurvey survey) {
-        return service.save(survey);
+    public ResponseEntity<HappinessSurvey> submitHappinessSurvey(@RequestBody SubmitHappinessSurveyDTO request) {
+        HappinessSurvey data = service.save(request);
+        return ResponseEntity.ok().body(data);
     }
 
     @GetMapping("/happiness/{userId}")
