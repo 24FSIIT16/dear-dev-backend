@@ -17,6 +17,7 @@ public class SurveyController {
 
     @PostMapping("/happiness")
     public ResponseEntity<HappinessSurvey> submitHappinessSurvey(@RequestBody SubmitHappinessSurveyDTO request) {
+        // todo ensure only logged in user can post his entries
         HappinessSurvey data = service.save(request);
         return ResponseEntity.ok().body(data);
     }
