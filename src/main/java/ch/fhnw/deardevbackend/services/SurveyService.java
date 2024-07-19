@@ -1,7 +1,7 @@
 package ch.fhnw.deardevbackend.services;
 
-import ch.fhnw.deardevbackend.entities.OverallHappinessSurvey;
-import ch.fhnw.deardevbackend.repositories.OverallHappinessSurveyRepository;
+import ch.fhnw.deardevbackend.entities.HappinessSurvey;
+import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,16 +10,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class OverallHappinessSurveyService {
+public class SurveyService {
 
     @Autowired
-    private OverallHappinessSurveyRepository repository;
+    private HappinessSurveyRepository repository;
 
-    public OverallHappinessSurvey save(OverallHappinessSurvey survey) {
+    public HappinessSurvey save(HappinessSurvey survey) {
         return repository.save(survey);
     }
 
-    public List<OverallHappinessSurvey> getAllByUserId(Integer userId) {
+    public List<HappinessSurvey> getAllByUserId(Integer userId) {
         return repository.findByUserId(userId);
     }
 

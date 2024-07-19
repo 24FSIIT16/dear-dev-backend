@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "happiness_survey")
 @Builder
 @Data
-public class OverallHappinessSurvey {
+public class HappinessSurvey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

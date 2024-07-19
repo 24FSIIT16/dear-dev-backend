@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "work_kind_survey")
+@Table(name = "emotion_survey")
 @Builder
 @Data
-public class WorkKindHappinessSurvey {
+public class EmotionSurvey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -26,8 +26,8 @@ public class WorkKindHappinessSurvey {
     @Column(name = "score")
     private Integer score;
 
-    @Column(name = "work_kind_id")
-    private Integer workKindId;
+    @Column(name = "emotion_id")
+    private Integer emotionId;
 
 
 

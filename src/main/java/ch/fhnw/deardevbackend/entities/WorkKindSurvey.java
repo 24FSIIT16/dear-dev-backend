@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "work_kind_survey")
 @Builder
 @Data
-public class EmotionHappinessSurvey {
+public class WorkKindSurvey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -26,8 +26,8 @@ public class EmotionHappinessSurvey {
     @Column(name = "score")
     private Integer score;
 
-    @Column(name = "emotion_id")
-    private Integer emotionId;
+    @Column(name = "work_kind_id")
+    private Integer workKindId;
 
 
 
