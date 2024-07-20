@@ -30,7 +30,4 @@ public class WorkKindSurvey {
     private Integer workKindId;
 
 
-
-
-
 }
