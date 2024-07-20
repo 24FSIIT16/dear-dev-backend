@@ -1,6 +1,5 @@
 package ch.fhnw.deardevbackend.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
