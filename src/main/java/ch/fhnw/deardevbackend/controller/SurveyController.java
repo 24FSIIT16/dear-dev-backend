@@ -7,31 +7,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/survey")
 public class SurveyController {
     @Autowired
-    private SurveyService service;
+    private SurveyService surveyService;
 
     // todo ensure only logged in user can post his entries
 
     @PostMapping("/happiness")
     public ResponseEntity<HappinessSurvey> submitHappinessSurvey(@RequestBody SubmitHappinessSurveyDTO request) {
-        HappinessSurvey data = service.save(request);
+        HappinessSurvey data = surveyService.save(request);
         return ResponseEntity.ok().body(data);
     }
 
     @GetMapping("/happiness/average/{userId}")
     public ResponseEntity<Integer> getAverageScoreByUserId(@PathVariable int userId) {
-        Integer averageScore = service.getAverageScoreByUserId(userId);
+        Integer averageScore = surveyService.getAverageScoreByUserId(userId);
         return ResponseEntity.ok().body(averageScore);
-    }
-
-    @GetMapping("/happiness/{userId}")
-    public List<HappinessSurvey> getAllByUserId(@PathVariable Integer userId) {
-        return service.getAllByUserId(userId);
     }
 
 }

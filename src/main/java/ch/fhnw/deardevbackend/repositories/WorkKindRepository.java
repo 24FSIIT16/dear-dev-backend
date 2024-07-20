@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface WorkKindRepository extends JpaRepository<WorkKind, Integer> {
 
-    @Query("SELECT w FROM WorkKind w WHERE w.teamId IS NULL OR w.teamId = :teamId")
-    List<WorkKind> findByTeamIdOrNoTeam(@Param("teamId") List<Integer>  teamIds);
+    @Query("SELECT w FROM WorkKind w WHERE w.teamId IS NULL OR w.teamId IN (:teamIds)")
+    List<WorkKind> findByTeamIdsOrNoTeam(@Param("teamIds") List<Integer> teamIds);
 }

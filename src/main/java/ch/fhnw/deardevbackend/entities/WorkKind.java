@@ -21,5 +21,5 @@ public class WorkKind {
     private String name;
 
     @Column(name = "team_id")
-    private int teamId;
+    private Integer teamId;
 }
