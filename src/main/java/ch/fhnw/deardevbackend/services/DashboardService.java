@@ -1,17 +1,18 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.dto.DashboardDTO;
+import ch.fhnw.deardevbackend.dto.SubmitEmotionSurveyDTO;
 import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
 import ch.fhnw.deardevbackend.dto.SubmitWorkKindSurveyDTO;
+import ch.fhnw.deardevbackend.entities.EmotionSurvey;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 import ch.fhnw.deardevbackend.entities.WorkKind;
 import ch.fhnw.deardevbackend.entities.WorkKindSurvey;
 import ch.fhnw.deardevbackend.mapper.DashboardMapper;
+import ch.fhnw.deardevbackend.mapper.SubmitEmotionSurveyMapper;
 import ch.fhnw.deardevbackend.mapper.SubmitHappinessSurveyMapper;
 import ch.fhnw.deardevbackend.mapper.SubmitWorkKindSurveyMapper;
-import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
-import ch.fhnw.deardevbackend.repositories.WorkKindRepository;
-import ch.fhnw.deardevbackend.repositories.WorkKindSurveyRepository;
+import ch.fhnw.deardevbackend.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class DashboardService {
     private WorkKindSurveyRepository workKindSurveyRepository;
 
     @Autowired
+    private EmotionSurveyRepository emotionSurveyRepository;
+
+    @Autowired
     private WorkKindRepository workKindRepository;
 
     @Autowired
@@ -37,6 +41,9 @@ public class DashboardService {
 
     @Autowired
     private SubmitWorkKindSurveyMapper submitWorkKindSurveyMapper;
+
+    @Autowired
+    private SubmitEmotionSurveyMapper submitEmotionSurveyMapper;
 
     @Transactional
     public HappinessSurvey save(SubmitHappinessSurveyDTO dto) {
@@ -48,6 +55,12 @@ public class DashboardService {
     public WorkKindSurvey save(SubmitWorkKindSurveyDTO dto) {
         WorkKindSurvey survey = submitWorkKindSurveyMapper.toWorkKindSurvey(dto);
         return workKindSurveyRepository.save(survey);
+    }
+
+    @Transactional
+    public EmotionSurvey save(SubmitEmotionSurveyDTO dto) {
+        EmotionSurvey survey = submitEmotionSurveyMapper.toEmotionSurvey(dto);
+        return emotionSurveyRepository.save(survey);
     }
 
     @Transactional(readOnly = true)
