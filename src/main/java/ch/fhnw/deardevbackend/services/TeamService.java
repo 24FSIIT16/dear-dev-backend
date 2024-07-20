@@ -16,6 +16,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TeamService {
@@ -72,5 +74,9 @@ public class TeamService {
             code = TeamCodeGenerator.generateUniqueCode();
         } while (teamRepository.existsByCode(code));
         return code;
+    }
+
+    public List<Integer> getTeamIdsForUser(int userId) {
+        return teamMemberRepository.findTeamIdByUserId(userId);
     }
 }
