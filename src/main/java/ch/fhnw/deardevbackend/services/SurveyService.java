@@ -1,9 +1,13 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
+import ch.fhnw.deardevbackend.dto.SubmitWorkKindSurveyDTO;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
+import ch.fhnw.deardevbackend.entities.WorkKindSurvey;
 import ch.fhnw.deardevbackend.mapper.SubmitHappinessSurveyMapper;
+import ch.fhnw.deardevbackend.mapper.SubmitWorkKindSurveyMapper;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
+import ch.fhnw.deardevbackend.repositories.WorkKindSurveyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,13 @@ public class SurveyService {
     private HappinessSurveyRepository happinessSurveyRepository;
 
     @Autowired
+    private WorkKindSurveyRepository workKindSurveyRepository;
+
+    @Autowired
     private SubmitHappinessSurveyMapper submitHappinessSurveyMapper;
+
+    @Autowired
+    private SubmitWorkKindSurveyMapper submitWorkKindSurveyMapper;
 
     @Transactional
     public HappinessSurvey save(SubmitHappinessSurveyDTO dto) {
@@ -27,10 +37,11 @@ public class SurveyService {
         return happinessSurveyRepository.save(survey);
     }
 
-    public List<HappinessSurvey> getAllByUserId(Integer userId) {
-        return happinessSurveyRepository.findByUserId(userId);
+    @Transactional
+    public WorkKindSurvey save(SubmitWorkKindSurveyDTO dto) {
+        WorkKindSurvey survey = submitWorkKindSurveyMapper.toWorkKindSurvey(dto);
+        return workKindSurveyRepository.save(survey);
     }
-
 
     @Transactional(readOnly = true)
     public Integer getAverageScoreByUserId(int userId) {
