@@ -1,5 +1,6 @@
 package ch.fhnw.deardevbackend.services;
 
+import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.DashboardDTO;
 import ch.fhnw.deardevbackend.entities.WorkKind;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
@@ -179,5 +180,23 @@ class DashboardServiceTest {
         assertEquals("Testing", dashboardDTO2.getMostVotedWorkKind().getWorkKindName());
         assertEquals(7, dashboardDTO2.getMostVotedWorkKind().getVoteCount());
         assertEquals(5, dashboardDTO2.getAverageScore());
+    }
+
+    @Test
+    void getAverageScoreByUserId_Exception() {
+        int userId = 1;
+        when(happinessSurveyRepository.findDailyAveragesByUserId(userId)).thenThrow(new RuntimeException("Database error"));
+
+        YappiException exception = assertThrows(YappiException.class, () -> dashboardService.getAverageScoreByUserId(userId));
+        assertEquals("Error calculating average score for user ID: 1", exception.getMessage());
+    }
+
+    @Test
+    void getDashboardDataByUserId_Exception() {
+        int userId = 1;
+        when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId)).thenThrow(new RuntimeException("Database error"));
+
+        YappiException exception = assertThrows(YappiException.class, () -> dashboardService.getDashboardDataByUserId(userId));
+        assertEquals("Error fetching dashboard data for user ID: 1", exception.getMessage());
     }
 }

@@ -1,5 +1,6 @@
 package ch.fhnw.deardevbackend.services;
 
+import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.DashboardDTO;
 import ch.fhnw.deardevbackend.dto.SubmitEmotionSurveyDTO;
 import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
@@ -15,6 +16,7 @@ import ch.fhnw.deardevbackend.mapper.SubmitWorkKindSurveyMapper;
 import ch.fhnw.deardevbackend.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,25 +49,38 @@ public class DashboardService {
 
     @Transactional
     public HappinessSurvey save(SubmitHappinessSurveyDTO dto) {
-        HappinessSurvey survey = submitHappinessSurveyMapper.toHappinessSurvey(dto);
-        return happinessSurveyRepository.save(survey);
+        try {
+            HappinessSurvey survey = submitHappinessSurveyMapper.toHappinessSurvey(dto);
+            return happinessSurveyRepository.save(survey);
+        } catch (DataIntegrityViolationException ex) {
+            throw new YappiException("Error saving dappiness data");
+        }
     }
 
     @Transactional
     public WorkKindSurvey save(SubmitWorkKindSurveyDTO dto) {
-        WorkKindSurvey survey = submitWorkKindSurveyMapper.toWorkKindSurvey(dto);
-        return workKindSurveyRepository.save(survey);
+        try {
+            WorkKindSurvey survey = submitWorkKindSurveyMapper.toWorkKindSurvey(dto);
+            return workKindSurveyRepository.save(survey);
+        } catch (DataIntegrityViolationException ex) {
+            throw new YappiException("Error saving worktype data");
+        }
     }
 
     @Transactional
     public EmotionSurvey save(SubmitEmotionSurveyDTO dto) {
-        EmotionSurvey survey = submitEmotionSurveyMapper.toEmotionSurvey(dto);
-        return emotionSurveyRepository.save(survey);
+        try {
+            EmotionSurvey survey = submitEmotionSurveyMapper.toEmotionSurvey(dto);
+            return emotionSurveyRepository.save(survey);
+        } catch (DataIntegrityViolationException ex) {
+            throw new YappiException("Error saving emotion data");
+        }
     }
 
     @Transactional(readOnly = true)
     public Integer getAverageScoreByUserId(int userId) {
-        List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
+        try {
+            List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
 
         if (dailyAverages.isEmpty()) {
             return null;
@@ -78,11 +93,15 @@ public class DashboardService {
 
         double overallAverage = total / dailyAverages.size();
         return (int) Math.round(overallAverage);
+        } catch (Exception ex) {
+            throw new YappiException("Error calculating average score for user ID: " + userId);
+        }
     }
 
     @Transactional(readOnly = true)
     public DashboardDTO getDashboardDataByUserId(int userId) {
-        List<Object[]> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
+        try {
+            List<Object[]> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
 
         Integer averageScore = getAverageScoreByUserId(userId);
 
@@ -97,8 +116,10 @@ public class DashboardService {
                 .map(WorkKind::getName)
                 .orElse("Unknown");
 
-
         return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore);
+        } catch (Exception ex) {
+            throw new YappiException("Error fetching dashboard data for user ID: " + userId);
+        }
     }
 
 }
