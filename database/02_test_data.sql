@@ -24,13 +24,24 @@ VALUES ('Coding'),
 INSERT INTO work_kind (name, team_id)
 VALUES ('Team Huddle', 998),
        ('Bowling', 999);
+
 INSERT INTO emotion (name)
-VALUES ('Relaxed'),
-       ('Frustrated'),
+VALUES ('Angry'),
+       ('Bored'),
        ('Busy'),
-       ('Stressed'),
+       ('Disappointed'),
+       ('Energetic'),
        ('Exhausted'),
-       ('Sick');
+       ('Frustrated'),
+       ('Lonely'),
+       ('Motivated'),
+       ('Nervous'),
+       ('Overwhelmed'),
+       ('Pessimistic'),
+       ('Relaxed'),
+       ('Sick'),
+       ('Stressed');
+
 INSERT INTO happiness_survey (user_id, score)
 VALUES (100001, 4),
        (100001, 2),
@@ -39,6 +50,6 @@ VALUES (100001, 4),
 INSERT INTO work_kind_survey (user_id, score, work_kind_id)
 VALUES (100001, 6, 1),
        (100002, 7, 2);
-INSERT INTO emotion_survey (user_id, score, emotion_id)
-VALUES (100001, 9, 1),
-       (100002, 5, 2);
+INSERT INTO emotion_survey (user_id, emotion_id)
+VALUES (100001, 1),
+       (100002, 2);

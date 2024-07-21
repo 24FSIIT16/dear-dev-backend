@@ -23,9 +23,6 @@ public class EmotionSurvey {
     @Column(name = "submitted", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private String submitted;
 
-    @Column(name = "score")
-    private Integer score;
-
     @Column(name = "emotion_id")
     private Integer emotionId;
 

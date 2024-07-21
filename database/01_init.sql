@@ -128,7 +128,6 @@ CREATE TABLE emotion_survey
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER NOT NULL,
     submitted  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    score      INTEGER NOT NULL,
     emotion_id INTEGER NOT NULL,
 
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id),
