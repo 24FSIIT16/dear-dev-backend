@@ -82,17 +82,17 @@ public class DashboardService {
         try {
             List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
 
-        if (dailyAverages.isEmpty()) {
-            return null;
-        }
+            if (dailyAverages.isEmpty()) {
+                return null;
+            }
 
-        double total = 0;
-        for (Object[] dailyAverage : dailyAverages) {
-            total += (Double) dailyAverage[1];
-        }
+            double total = 0;
+            for (Object[] dailyAverage : dailyAverages) {
+                total += (Double) dailyAverage[1];
+            }
 
-        double overallAverage = total / dailyAverages.size();
-        return (int) Math.round(overallAverage);
+            double overallAverage = total / dailyAverages.size();
+            return (int) Math.round(overallAverage);
         } catch (Exception ex) {
             throw new YappiException("Error calculating average score for user ID: " + userId);
         }
@@ -103,23 +103,23 @@ public class DashboardService {
         try {
             List<Object[]> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
 
-        Integer averageScore = getAverageScoreByUserId(userId);
+            Integer averageScore = getAverageScoreByUserId(userId);
 
-        if (results.isEmpty()) {
-            return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
-        }
+            if (results.isEmpty()) {
+                return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
+            }
 
-        Object[] result = results.get(0);
-        Integer workKindId = (Integer) result[0];
-        Long voteCount = (Long) result[1];
-        String workKindName = workKindRepository.findById(workKindId)
-                .map(WorkKind::getName)
-                .orElse("Unknown");
+            Object[] result = results.get(0);
+            Integer workKindId = (Integer) result[0];
+            Long voteCount = (Long) result[1];
+            String workKindName = workKindRepository.findById(workKindId)
+                    .map(WorkKind::getName)
+                    .orElse("Unknown");
 
-            Integer happinessScore = workKindSurveyRepository.findMostSubmittedScoreByWorkKindId(workKindId)
+            Integer happinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId)
                     .orElse(null);
 
-        return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
+            return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
         } catch (Exception ex) {
             throw new YappiException("Error fetching dashboard data for user ID: " + userId);
         }

@@ -19,6 +19,9 @@ public interface WorkKindSurveyRepository extends JpaRepository<WorkKindSurvey, 
             "ORDER BY voteCount DESC")
     List<Object[]> findMostVotedWorkKindByUserId(int userId);
 
-    @Query("SELECT w.score FROM WorkKindSurvey w WHERE w.workKindId = :workKindId GROUP BY w.score ORDER BY COUNT(w.score) DESC")
-    Optional<Integer> findMostSubmittedScoreByWorkKindId(Integer workKindId);
+    @Query("SELECT AVG(w.score) " +
+            "FROM WorkKindSurvey w " +
+            "WHERE w.workKindId = :workKindId AND w.userId = :userId")
+    Optional<Integer> findAverageHappinessScoreByWorkKindIdAndUserId(Integer workKindId, int userId);
+
 }
