@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface TeamMemberWithUserRepository extends JpaRepository<TeamMemberWithUser, Integer> {
     @Query("SELECT tm FROM TeamMemberWithUser tm JOIN FETCH tm.user WHERE tm.teamId = :teamId")
-    List<TeamMemberWithUser> findByTeamId(int teamId);
+    List<TeamMemberWithUser> findByTeamId(Integer teamId);
 }

@@ -6,7 +6,7 @@ import java.util.Random;
 public class TeamCodeGenerator {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private static final int CODE_LENGTH = 4;
+    private static final Integer CODE_LENGTH = 4;
     private static final Random RANDOM = new SecureRandom();
 
     public static String generateUniqueCode() {

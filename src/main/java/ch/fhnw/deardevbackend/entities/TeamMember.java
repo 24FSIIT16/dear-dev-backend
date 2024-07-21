@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 public class TeamMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int id;
+    private Integer id;
 
     @Column(name = "user_id")
-    private int userId;
+    private Integer userId;
 
     @Column(name = "team_id")
-    private int teamId;
+    private Integer teamId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")

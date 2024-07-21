@@ -24,7 +24,7 @@ public class TeamMemberService {
     @Autowired
     private TeamWithMembersMapper teamWithMembersMapper;
 
-    public TeamWithMembersDTO getTeamMembersByTeamId(int teamId) {
+    public TeamWithMembersDTO getTeamMembersByTeamId(Integer teamId) {
         List<TeamMemberWithUser> members = teamMemberWithUserRepository.findByTeamId(teamId);
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new RuntimeException("Team not found with id: " + teamId));
         Integer adminId = members.stream().filter(member -> member.getRole().equals(Role.ADMIN)).toList().getFirst().getUser().getId();

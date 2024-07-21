@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 public class TeamMemberWithUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Column(name = "team_id")
-    private int teamId;
+    private Integer teamId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
