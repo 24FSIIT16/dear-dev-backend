@@ -2,6 +2,7 @@ package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.DashboardDTO;
+import ch.fhnw.deardevbackend.dto.MostVotedWorkKindDTO;
 import ch.fhnw.deardevbackend.entities.WorkKind;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
 import ch.fhnw.deardevbackend.repositories.WorkKindRepository;
@@ -71,7 +72,6 @@ class DashboardServiceTest {
         assertNull(dashboardDTO.getMostVotedWorkKind().getWorkKindName());
         assertNull(dashboardDTO.getMostVotedWorkKind().getVoteCount());
         assertNull(dashboardDTO.getAverageScore());
-
     }
 
     @Test
@@ -82,13 +82,13 @@ class DashboardServiceTest {
                 new Object[]{2, 7.2}
         ));
 
-        when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId)).thenReturn(List.of(
-                new Object[]{1, 5L},
-                new Object[]{5, 7L}
+        when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId)).thenReturn((List<MostVotedWorkKindDTO>) List.of(
+                new MostVotedWorkKindDTO(1, 5L),
+                new MostVotedWorkKindDTO(1, 5L)
         ));
 
         when(workKindRepository.findById(1)).thenReturn(Optional.of(new WorkKind(55, "Development", null)));
-        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10));
+        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10.0));
 
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
         assertEquals(1, dashboardDTO.getMostVotedWorkKind().getWorkKindId());
@@ -96,21 +96,20 @@ class DashboardServiceTest {
         assertEquals(5L, dashboardDTO.getMostVotedWorkKind().getVoteCount());
         assertEquals(6, dashboardDTO.getAverageScore());
         assertEquals(10, dashboardDTO.getMostVotedWorkKind().getHappinessScore());
-
     }
 
     @Test
     void getDashboardDataByUserId_WithWorkKindSurveysOnly() {
         int userId = 1;
         when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId)).thenReturn(List.of(
-                new Object[]{1, 5L},
-                new Object[]{2, 3L},
-                new Object[]{4, 2L},
-                new Object[]{1, 8L}
+                new MostVotedWorkKindDTO(1, 5L),
+                new MostVotedWorkKindDTO(2, 3L),
+                new MostVotedWorkKindDTO(4, 2L),
+                new MostVotedWorkKindDTO(1, 8L)
         ));
         when(workKindRepository.findById(1)).thenReturn(Optional.of(new WorkKind(1, "Development", null)));
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId)).thenReturn(List.of());
-        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10));
+        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10.0));
 
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
         assertEquals(1, dashboardDTO.getMostVotedWorkKind().getWorkKindId());
@@ -155,27 +154,27 @@ class DashboardServiceTest {
         int userId1 = 1;
         int userId2 = 2;
         when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId1)).thenReturn(List.of(
-                new Object[]{1, 8L},
-                new Object[]{2, 3L},
-                new Object[]{4, 2L}
+                new MostVotedWorkKindDTO(1, 8L),
+                new MostVotedWorkKindDTO(2, 3L),
+                new MostVotedWorkKindDTO(4, 2L)
         ));
         when(workKindRepository.findById(1)).thenReturn(Optional.of(new WorkKind(1, "Development", null)));
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId1)).thenReturn(List.of(
                 new Object[]{1, 5.0},
                 new Object[]{2, 10.0}
         ));
-        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10));
+        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(1, 1)).thenReturn(Optional.of(10.0));
         when(workKindSurveyRepository.findMostVotedWorkKindByUserId(userId2)).thenReturn(List.of(
-                new Object[]{2, 7L},
-                new Object[]{7, 3L},
-                new Object[]{3, 2L}
+                new MostVotedWorkKindDTO(2, 7L),
+                new MostVotedWorkKindDTO(7, 3L),
+                new MostVotedWorkKindDTO(3, 2L)
         ));
         when(workKindRepository.findById(2)).thenReturn(Optional.of(new WorkKind(2, "Testing", null)));
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId2)).thenReturn(List.of(
                 new Object[]{1, 3.0},
                 new Object[]{2, 7.0}
         ));
-        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(2, 2)).thenReturn(Optional.of(9));
+        when(workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(2, 2)).thenReturn(Optional.of(9.0));
 
         DashboardDTO dashboardDTO1 = dashboardService.getDashboardDataByUserId(userId1);
         assertEquals(1, dashboardDTO1.getMostVotedWorkKind().getWorkKindId());
@@ -190,7 +189,6 @@ class DashboardServiceTest {
         assertEquals(7, dashboardDTO2.getMostVotedWorkKind().getVoteCount());
         assertEquals(5, dashboardDTO2.getAverageScore());
         assertEquals(9, dashboardDTO2.getMostVotedWorkKind().getHappinessScore());
-
     }
 
     @Test

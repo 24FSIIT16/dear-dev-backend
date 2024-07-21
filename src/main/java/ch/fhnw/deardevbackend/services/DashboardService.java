@@ -1,10 +1,7 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
-import ch.fhnw.deardevbackend.dto.DashboardDTO;
-import ch.fhnw.deardevbackend.dto.SubmitEmotionSurveyDTO;
-import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
-import ch.fhnw.deardevbackend.dto.SubmitWorkKindSurveyDTO;
+import ch.fhnw.deardevbackend.dto.*;
 import ch.fhnw.deardevbackend.entities.EmotionSurvey;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 import ch.fhnw.deardevbackend.entities.WorkKind;
@@ -101,7 +98,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardDTO getDashboardDataByUserId(int userId) {
         try {
-            List<Object[]> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
+            List<MostVotedWorkKindDTO> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
 
             Integer averageScore = getAverageScoreByUserId(userId);
 
@@ -109,15 +106,15 @@ public class DashboardService {
                 return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
             }
 
-            Object[] result = results.get(0);
-            Integer workKindId = (Integer) result[0];
-            Long voteCount = (Long) result[1];
+            MostVotedWorkKindDTO mostVotedWorkKindDTO = results.get(0);
+            Integer workKindId = mostVotedWorkKindDTO.getWorkKindId();
+            Long voteCount = mostVotedWorkKindDTO.getVoteCount();
             String workKindName = workKindRepository.findById(workKindId)
                     .map(WorkKind::getName)
                     .orElse("Unknown");
 
-            Integer happinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId)
-                    .orElse(null);
+            Double avgHappinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId).orElse(null);
+            Integer happinessScore = (avgHappinessScore != null) ? avgHappinessScore.intValue() : null;
 
             return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
         } catch (Exception ex) {
