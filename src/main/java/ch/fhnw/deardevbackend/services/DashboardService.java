@@ -83,17 +83,19 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardDTO getDashboardDataByUserId(int userId) {
         List<Object[]> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
+
+        Integer averageScore = getAverageScoreByUserId(userId);
+
         if (results.isEmpty()) {
-            return null;
+            return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore);
         }
+
         Object[] result = results.get(0);
         Integer workKindId = (Integer) result[0];
         Long voteCount = (Long) result[1];
         String workKindName = workKindRepository.findById(workKindId)
                 .map(WorkKind::getName)
                 .orElse("Unknown");
-
-        Integer averageScore = getAverageScoreByUserId(userId);
 
 
         return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore);
