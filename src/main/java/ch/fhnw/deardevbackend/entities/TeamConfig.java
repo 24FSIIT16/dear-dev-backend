@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class TeamConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int id;
+    private Integer id;
 
     @Column(name = "work_kinds")
     private String workKinds;

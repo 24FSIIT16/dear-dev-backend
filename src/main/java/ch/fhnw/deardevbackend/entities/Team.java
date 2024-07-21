@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
