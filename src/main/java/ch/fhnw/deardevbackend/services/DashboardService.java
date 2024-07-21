@@ -106,7 +106,7 @@ public class DashboardService {
         Integer averageScore = getAverageScoreByUserId(userId);
 
         if (results.isEmpty()) {
-            return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore);
+            return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
         }
 
         Object[] result = results.get(0);
@@ -116,7 +116,10 @@ public class DashboardService {
                 .map(WorkKind::getName)
                 .orElse("Unknown");
 
-        return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore);
+            Integer happinessScore = workKindSurveyRepository.findMostSubmittedScoreByWorkKindId(workKindId)
+                    .orElse(null);
+
+        return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
         } catch (Exception ex) {
             throw new YappiException("Error fetching dashboard data for user ID: " + userId);
         }

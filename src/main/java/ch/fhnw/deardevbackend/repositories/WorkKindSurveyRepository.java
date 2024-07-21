@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -17,4 +18,7 @@ public interface WorkKindSurveyRepository extends JpaRepository<WorkKindSurvey, 
             "GROUP BY w.workKindId " +
             "ORDER BY voteCount DESC")
     List<Object[]> findMostVotedWorkKindByUserId(int userId);
+
+    @Query("SELECT w.score FROM WorkKindSurvey w WHERE w.workKindId = :workKindId GROUP BY w.score ORDER BY COUNT(w.score) DESC")
+    Optional<Integer> findMostSubmittedScoreByWorkKindId(Integer workKindId);
 }

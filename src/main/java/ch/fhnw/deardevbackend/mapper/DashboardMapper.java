@@ -9,8 +9,8 @@ import org.mapstruct.factory.Mappers;
 public interface DashboardMapper {
     DashboardMapper INSTANCE = Mappers.getMapper(DashboardMapper.class);
 
-    default DashboardDTO toDashboardDTO(Integer workKindId, String workKindName, Long voteCount,  Integer averageScore) {
-        DashboardDTO.WorkKindDTO workKindDTO = new DashboardDTO.WorkKindDTO(workKindId, workKindName, voteCount);
+    default DashboardDTO toDashboardDTO(Integer workKindId, String workKindName, Long voteCount,  Integer averageScore, Integer happinessScore) {
+        DashboardDTO.WorkKindDTO workKindDTO = new DashboardDTO.WorkKindDTO(workKindId, workKindName, voteCount, happinessScore);
 
         return new DashboardDTO(workKindDTO, averageScore);
     }
