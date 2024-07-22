@@ -12,13 +12,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "team_member")
 @Builder
 @Data
-public class TeamMember {
+public class TeamMemberWithUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Integer id;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Column(name = "team_id")
     private Integer teamId;

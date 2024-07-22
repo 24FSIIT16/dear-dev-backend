@@ -50,7 +50,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(int id, String username) {
+    public void updateUser(Integer id, String username) {
         User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
         if (user != null) {
             user.setUsername(username);
