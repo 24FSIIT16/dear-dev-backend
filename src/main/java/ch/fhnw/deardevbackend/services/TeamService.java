@@ -91,4 +91,8 @@ public class TeamService {
         } while (teamRepository.existsByCode(code));
         return code;
     }
+
+    public List<Integer> getTeamIdsForUser(int userId) {
+        return teamMemberRepository.findTeamIdByUserId(userId);
+    }
 }

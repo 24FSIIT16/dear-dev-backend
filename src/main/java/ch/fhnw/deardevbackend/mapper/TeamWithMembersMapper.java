@@ -15,6 +15,6 @@ public interface TeamWithMembersMapper {
 
     @Mapping(target = "team", source = "team")
     @Mapping(target = "members", source = "members")
-    @Mapping(target = " isAdmin", source = "isAdmin")
+    @Mapping(target = "isAdmin", source = "isAdmin")
     TeamWithMembersDTO toDTO(Team team, List<TeamMemberWithUser> members, Boolean isAdmin);
 }
