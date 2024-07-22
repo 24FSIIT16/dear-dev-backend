@@ -85,12 +85,8 @@ public class DashboardService {
 
             double total = 0;
             for (Object[] dailyAverage : dailyAverages) {
-                System.out.println("Daily Average: " + dailyAverage[1] + " of type: " + dailyAverage[1].getClass().getName());
-
                 total += (Double) dailyAverage[1];
             }
-            System.out.println("Total so far: " + total);
-
 
             double overallAverage = total / dailyAverages.size();
             return (int) Math.round(overallAverage);

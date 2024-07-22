@@ -9,16 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DashboardDTO {
-    private WorkKindDTO mostVotedWorkKind;
+    private MostVotedWorkKindDTO mostVotedWorkKind;
     private Integer averageScore;
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class WorkKindDTO {
-        private Integer workKindId;
-        private String workKindName;
-        private Integer voteCount;
-        private Integer happinessScore;
-    }
+
 }
