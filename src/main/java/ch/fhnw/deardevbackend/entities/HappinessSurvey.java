@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 public class HappinessSurvey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "user_id")
-    private int userId;
+    private Integer userId;
 
     @Column(name = "submitted", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private String submitted;

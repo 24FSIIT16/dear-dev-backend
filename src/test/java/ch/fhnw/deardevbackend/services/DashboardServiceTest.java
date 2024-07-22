@@ -92,7 +92,7 @@ class DashboardServiceTest {
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
         assertEquals(1, dashboardDTO.getMostVotedWorkKind().getWorkKindId());
         assertEquals("Development", dashboardDTO.getMostVotedWorkKind().getWorkKindName());
-        assertEquals(5L, dashboardDTO.getMostVotedWorkKind().getVoteCount());
+        assertEquals(5, dashboardDTO.getMostVotedWorkKind().getVoteCount());
         assertEquals(6, dashboardDTO.getAverageScore());
         assertEquals(10, dashboardDTO.getMostVotedWorkKind().getHappinessScore());
     }
@@ -113,7 +113,7 @@ class DashboardServiceTest {
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
         assertEquals(1, dashboardDTO.getMostVotedWorkKind().getWorkKindId());
         assertEquals("Development", dashboardDTO.getMostVotedWorkKind().getWorkKindName());
-        assertEquals(5L, dashboardDTO.getMostVotedWorkKind().getVoteCount());
+        assertEquals(5, dashboardDTO.getMostVotedWorkKind().getVoteCount());
         assertNull(dashboardDTO.getAverageScore());
         assertEquals(10, dashboardDTO.getMostVotedWorkKind().getHappinessScore());
     }

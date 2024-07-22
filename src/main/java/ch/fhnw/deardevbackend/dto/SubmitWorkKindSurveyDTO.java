@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SubmitWorkKindSurveyDTO {
-    private int userId;
-    private int score;
-    private int workKindId;
+    private Integer userId;
+    private Integer score;
+    private Integer workKindId;
 }

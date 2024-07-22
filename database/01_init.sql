@@ -67,8 +67,8 @@ CREATE TABLE team_member
 
     CONSTRAINT pk_team_member PRIMARY KEY (id),
     CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_team_member_team FOREIGN KEY (team_id) REFERENCES team (id)
---     CONSTRAINT uq_team_member UNIQUE (user_id, team_id, role)
+    CONSTRAINT fk_team_member_team FOREIGN KEY (team_id) REFERENCES team (id),
+    CONSTRAINT uq_team_member UNIQUE (user_id, team_id, role)
 );
 
 CREATE TABLE team_config

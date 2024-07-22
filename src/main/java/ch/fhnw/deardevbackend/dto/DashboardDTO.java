@@ -18,7 +18,7 @@ public class DashboardDTO {
     public static class WorkKindDTO {
         private Integer workKindId;
         private String workKindName;
-        private Long voteCount;
+        private Integer voteCount;
         private Integer happinessScore;
     }
 }

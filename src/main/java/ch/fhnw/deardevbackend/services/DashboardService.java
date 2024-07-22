@@ -45,7 +45,7 @@ public class DashboardService {
     private SubmitEmotionSurveyMapper submitEmotionSurveyMapper;
 
     @Transactional
-    public HappinessSurvey save(SubmitHappinessSurveyDTO dto) {
+    public HappinessSurvey saveHappinessSurvey(SubmitHappinessSurveyDTO dto) {
         try {
             HappinessSurvey survey = submitHappinessSurveyMapper.toHappinessSurvey(dto);
             return happinessSurveyRepository.save(survey);
@@ -55,7 +55,7 @@ public class DashboardService {
     }
 
     @Transactional
-    public WorkKindSurvey save(SubmitWorkKindSurveyDTO dto) {
+    public WorkKindSurvey saveWorkKindSurvey(SubmitWorkKindSurveyDTO dto) {
         try {
             WorkKindSurvey survey = submitWorkKindSurveyMapper.toWorkKindSurvey(dto);
             return workKindSurveyRepository.save(survey);
@@ -65,7 +65,7 @@ public class DashboardService {
     }
 
     @Transactional
-    public EmotionSurvey save(SubmitEmotionSurveyDTO dto) {
+    public EmotionSurvey saveEmotionSurvey(SubmitEmotionSurveyDTO dto) { // todo rename!!!!!!!!!!
         try {
             EmotionSurvey survey = submitEmotionSurveyMapper.toEmotionSurvey(dto);
             return emotionSurveyRepository.save(survey);
@@ -75,7 +75,7 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public Integer getAverageScoreByUserId(int userId) {
+    public Integer getAverageScoreByUserId(Integer userId) {
         try {
             List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
 
@@ -85,8 +85,12 @@ public class DashboardService {
 
             double total = 0;
             for (Object[] dailyAverage : dailyAverages) {
+                System.out.println("Daily Average: " + dailyAverage[1] + " of type: " + dailyAverage[1].getClass().getName());
+
                 total += (Double) dailyAverage[1];
             }
+            System.out.println("Total so far: " + total);
+
 
             double overallAverage = total / dailyAverages.size();
             return (int) Math.round(overallAverage);
@@ -96,19 +100,20 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public DashboardDTO getDashboardDataByUserId(int userId) {
+    public DashboardDTO getDashboardDataByUserId(Integer userId) {
         try {
-            List<Object[]> results = workKindSurveyRepository.findWorkKindCountByUserId(userId);
 
             Integer averageScore = getAverageScoreByUserId(userId);
+
+            List<Object[]> results = workKindSurveyRepository.findWorkKindCountByUserId(userId);
 
             if (results.isEmpty()) {
                 return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
             }
 
             Object[] result = results.get(0);
-            Integer workKindId = (Integer) result[0];
-            Long voteCount = (Long) result[1];
+            int workKindId = (int) result[0];
+            long voteCount = (long) result[1];
             String workKindName = workKindRepository.findById(workKindId)
                     .map(WorkKind::getName)
                     .orElse("Unknown");
@@ -116,7 +121,7 @@ public class DashboardService {
             Integer happinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId)
                     .orElse(null);
 
-            return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
+            return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, (int) voteCount, averageScore, happinessScore);
         } catch (Exception ex) {
             throw new YappiException("Error fetching dashboard data for user ID: " + userId);
         }

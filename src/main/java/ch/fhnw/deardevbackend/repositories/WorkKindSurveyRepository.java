@@ -17,11 +17,11 @@ public interface WorkKindSurveyRepository extends JpaRepository<WorkKindSurvey, 
             "WHERE w.userId = :userId " +
             "GROUP BY w.workKindId " +
             "ORDER BY voteCount DESC")
-    List<Object[]> findWorkKindCountByUserId(int userId);
+    List<Object[]> findWorkKindCountByUserId(Integer userId);
 
     @Query("SELECT AVG(w.score) " +
             "FROM WorkKindSurvey w " +
             "WHERE w.workKindId = :workKindId AND w.userId = :userId")
-    Optional<Integer> findAverageHappinessScoreByWorkKindIdAndUserId(Integer workKindId, int userId);
+    Optional<Integer> findAverageHappinessScoreByWorkKindIdAndUserId(Integer workKindId, Integer userId);
 
 }

@@ -24,7 +24,7 @@ public class WorkKindController {
 
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<WorkKind>> getAllWorkKindsByUserAndTeam(@PathVariable int userId) {
+    public ResponseEntity<List<WorkKind>> getAllWorkKindsByUserAndTeam(@PathVariable Integer userId) {
         List<Integer> teamIds = teamService.getTeamIdsForUser(userId);
         List<WorkKind> workKinds = workKindService.getWorkKindsForTeams(teamIds);
         return ResponseEntity.ok(workKinds);

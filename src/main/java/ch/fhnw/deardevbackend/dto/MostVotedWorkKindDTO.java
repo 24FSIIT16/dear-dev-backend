@@ -7,10 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MostVotedWorkKindDTO {
     private Integer workKindId;
-    private Long voteCount;
-
-    public MostVotedWorkKindDTO(Integer workKindId, Long voteCount) {
-        this.workKindId = workKindId;
-        this.voteCount = voteCount;
-    }
+    private Integer voteCount;
 }

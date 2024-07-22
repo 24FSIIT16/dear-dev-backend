@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class SubmitHappinessSurveyDTO {
-    private int userId;
-    private int score;
+    private Integer userId;
+    private Integer score;
 }

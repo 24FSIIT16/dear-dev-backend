@@ -22,32 +22,32 @@ public class DashboardController {
     // todo ensure only logged in user can post his entries
 
     @GetMapping("/{userId}")
-    public ResponseEntity<DashboardDTO> getDashboardDataByUserId(@PathVariable int userId) {
+    public ResponseEntity<DashboardDTO> getDashboardDataByUserId(@PathVariable Integer userId) {
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
         return ResponseEntity.ok().body(dashboardDTO);
     }
 
     @GetMapping("/happiness/average/{userId}")
-    public ResponseEntity<Integer> getAverageScoreByUserId(@PathVariable int userId) {
+    public ResponseEntity<Integer> getAverageScoreByUserId(@PathVariable Integer userId) {
         Integer averageScore = dashboardService.getAverageScoreByUserId(userId);
         return ResponseEntity.ok().body(averageScore);
     }
 
     @PostMapping("/survey/happiness")
     public ResponseEntity<HappinessSurvey> submitHappinessSurvey(@RequestBody SubmitHappinessSurveyDTO request) {
-        HappinessSurvey data = dashboardService.save(request);
+        HappinessSurvey data = dashboardService.saveHappinessSurvey(request);
         return ResponseEntity.ok().body(data);
     }
 
     @PostMapping("survey/workkind")
     public ResponseEntity<WorkKindSurvey> submitWorkKindSurvey(@RequestBody SubmitWorkKindSurveyDTO request) {
-        WorkKindSurvey data = dashboardService.save(request);
+        WorkKindSurvey data = dashboardService.saveWorkKindSurvey(request);
         return ResponseEntity.ok().body(data);
     }
 
     @PostMapping("survey/emotion")
     public ResponseEntity<EmotionSurvey> submitEmotionSurvey(@RequestBody SubmitEmotionSurveyDTO request) {
-        EmotionSurvey data = dashboardService.save(request);
+        EmotionSurvey data = dashboardService.saveEmotionSurvey(request);
         return ResponseEntity.ok().body(data);
     }
 }
