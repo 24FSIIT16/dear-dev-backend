@@ -98,7 +98,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardDTO getDashboardDataByUserId(int userId) {
         try {
-            List<MostVotedWorkKindDTO> results = workKindSurveyRepository.findMostVotedWorkKindByUserId(userId);
+            List<Object[]> results = workKindSurveyRepository.findWorkKindCountByUserId(userId);
 
             Integer averageScore = getAverageScoreByUserId(userId);
 
@@ -106,15 +106,15 @@ public class DashboardService {
                 return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
             }
 
-            MostVotedWorkKindDTO mostVotedWorkKindDTO = results.get(0);
-            Integer workKindId = mostVotedWorkKindDTO.getWorkKindId();
-            Long voteCount = mostVotedWorkKindDTO.getVoteCount();
+            Object[] result = results.get(0);
+            Integer workKindId = (Integer) result[0];
+            Long voteCount = (Long) result[1];
             String workKindName = workKindRepository.findById(workKindId)
                     .map(WorkKind::getName)
                     .orElse("Unknown");
 
-            Double avgHappinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId).orElse(null);
-            Integer happinessScore = (avgHappinessScore != null) ? avgHappinessScore.intValue() : null;
+            Integer happinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId)
+                    .orElse(null);
 
             return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, voteCount, averageScore, happinessScore);
         } catch (Exception ex) {
