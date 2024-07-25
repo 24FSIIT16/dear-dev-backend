@@ -19,6 +19,7 @@ public class InsightsService {
     private HappinessSurveyRepository happinessSurveyRepository;
 
     // todo add user authorization
+    // todo add yappi exception handling
     @Transactional(readOnly = true)
     public List<HappinessInsightsChartDTO> getDailyAveragesByUserId(Integer userId) {
         List<Object[]> userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);

@@ -15,6 +15,7 @@ public class InsightsController {
     @Autowired
     private InsightsService insightsService;
 
+    // todo use mapper to map the DTO to the entity
     @GetMapping("happiness/team-vs-personal/{userId}")
     public List<HappinessInsightsChartDTO> getDailyAverages(@PathVariable Integer userId) {
         return insightsService.getDailyAveragesByUserId(userId);
