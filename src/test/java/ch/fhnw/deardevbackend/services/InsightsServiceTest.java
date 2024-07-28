@@ -1,9 +1,15 @@
 package ch.fhnw.deardevbackend.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
+
 import ch.fhnw.deardevbackend.dto.HappinessInsightDTO;
 import ch.fhnw.deardevbackend.dto.TeamHappinessInsightDTO;
+import ch.fhnw.deardevbackend.dto.TeamWorkKindInsightDTO;
+import ch.fhnw.deardevbackend.dto.WorkKindInsightDTO;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
+import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.InsightsRepository;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
 import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
@@ -17,10 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class InsightsServiceTest {
+
+    @InjectMocks
+    private InsightsService insightsService;
 
     @Mock
     private InsightsRepository insightsRepository;
@@ -34,20 +41,19 @@ public class InsightsServiceTest {
     @Mock
     private HappinessInsightMapper happinessInsightMapper;
 
-    @InjectMocks
-    private InsightsService insightsService;
-
     private Integer userId;
-    private Integer teamId;
-    private List<Integer> teamIds;
     private List<Object[]> userAverages;
     private List<Object[]> teamAverages;
+
+    private List<Object[]> workKindHappinessData;
+    private WorkKindInsightDTO workKindInsightDTO1;
+    private WorkKindInsightDTO workKindInsightDTO2;
+    private WorkKindInsightDTO workKindInsightDTO3;
+    private WorkKindInsightDTO workKindInsightDTO4;
 
     @BeforeEach
     void setUp() {
         userId = 1;
-        teamId = 1;
-        teamIds = Arrays.asList(1, 2);
 
         userAverages = Arrays.asList(
                 new Object[]{"2024-07-27", 5.0},
@@ -60,19 +66,31 @@ public class InsightsServiceTest {
                 new Object[]{"2024-07-29", 3.0}
         );
 
-        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
-        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
-        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
+        workKindHappinessData = Arrays.asList(
+                new Object[]{1, 1, "Development", 4.5, 10L},
+                new Object[]{1, 2, "Testing", 3.5, 5L},
+                new Object[]{2, 1, "Development", 4.0, 8L},
+                new Object[]{2, 2, "Testing", 3.0, 6L}
+        );
 
+        workKindInsightDTO1 = new WorkKindInsightDTO(1, 1, "Development", 4.5, 10L);
+        workKindInsightDTO2 = new WorkKindInsightDTO(1, 2, "Testing", 3.5, 5L);
+        workKindInsightDTO3 = new WorkKindInsightDTO(2, 1, "Development", 4.0, 8L);
+        workKindInsightDTO4 = new WorkKindInsightDTO(2, 2, "Testing", 3.0, 6L);
     }
 
     @Test
     void getDailyAveragesByUserId_success() {
+        Integer teamId = 1;
         List<Integer> singleTeamId = List.of(teamId);
 
         when(teamMemberRepository.findTeamIdByUserId(userId)).thenReturn(singleTeamId);
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId)).thenReturn(userAverages);
         when(insightsRepository.findTeamDailyAveragesExcludingUser(userId)).thenReturn(teamAverages);
+
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
+        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
+        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
 
         List<TeamHappinessInsightDTO> result = insightsService.getDailyAveragesByUserId(userId);
 
@@ -98,12 +116,17 @@ public class InsightsServiceTest {
         verify(happinessInsightMapper, times(1)).toDTO("2024-07-29", 6.0, 3.0);
     }
 
-
     @Test
     void getDailyAveragesByUserId_multipleTeams_success() {
+        List<Integer> teamIds = Arrays.asList(1, 2);
+
         when(teamMemberRepository.findTeamIdByUserId(userId)).thenReturn(teamIds);
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId)).thenReturn(userAverages);
         when(insightsRepository.findTeamDailyAveragesExcludingUser(userId)).thenReturn(teamAverages);
+
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
+        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
+        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
 
         List<TeamHappinessInsightDTO> result = insightsService.getDailyAveragesByUserId(userId);
 
@@ -144,4 +167,18 @@ public class InsightsServiceTest {
         verify(happinessInsightMapper, times(2)).toDTO("2024-07-29", 6.0, 3.0);
     }
 
+    @Test
+    void getWorkKindHappinessByUserId_success() {
+        when(insightsRepository.findWorkKindHappinessByUserId(userId)).thenReturn(workKindHappinessData);
+
+        List<TeamWorkKindInsightDTO> result = insightsService.getWorkKindHappinessByUserId(userId);
+
+        assertEquals(2, result.size());
+
+        List<WorkKindInsightDTO> team1Insights = Arrays.asList(workKindInsightDTO1, workKindInsightDTO2);
+        List<WorkKindInsightDTO> team2Insights = Arrays.asList(workKindInsightDTO3, workKindInsightDTO4);
+
+        assertEquals(new TeamWorkKindInsightDTO(1, team1Insights), result.getFirst());
+        assertEquals(new TeamWorkKindInsightDTO(2, team2Insights), result.get(1));
+    }
 }
