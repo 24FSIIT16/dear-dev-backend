@@ -182,3 +182,46 @@ INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-0
 INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-26 15:00:00', 8);
 INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-27 12:00:00', 14);
 INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-28 12:00:00', 20);
+
+-- last weeks
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-14 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-14 17:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-15 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-16 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-17 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-17 18:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-18 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-19 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-20 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-20 15:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-21 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-22 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-23 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-23 18:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-24 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-25 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-26 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-26 15:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-27 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (2, '2024-06-28 12:00:00', 20);
+
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-14 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-14 17:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-15 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-16 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-17 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-17 18:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-18 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-19 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 15:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-21 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-22 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-23 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-23 18:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-24 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-25 12:00:00', 20);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-26 12:00:00', 2);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-26 15:00:00', 8);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-27 12:00:00', 14);
+INSERT INTO happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-28 12:00:00', 20);

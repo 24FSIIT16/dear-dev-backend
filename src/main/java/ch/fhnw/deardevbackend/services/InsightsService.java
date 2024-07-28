@@ -6,10 +6,17 @@ import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -62,25 +69,58 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
-    public List<HappinessInsightDTO> getHappinessInsightsByTeam(Integer userId, Integer teamId) {
-        List<Object[]> userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
-        List<Object[]> teamAverages = insightsRepository.findTeamDailyAveragesExcludingUser(teamId, userId);
+        public List<HappinessInsightDTO> getHappinessInsightsByTeam(Integer userId, Integer teamId, String sprint) {
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = LocalDateTime.now();
 
-        Map<String, Double> teamAveragesMap = teamAverages.stream()
-                .collect(Collectors.toMap(
-                        row -> row[0].toString(),
-                        row -> ((Number) row[1]).doubleValue()
-                ));
 
-        return userAverages.stream()
-                .map(userAvg -> {
-                    String day = userAvg[0].toString();
-                    double userAverage = ((Number) userAvg[1]).doubleValue();
-                    double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
-                    return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
-                })
-                .collect(Collectors.toList());
+
+        switch (sprint.toLowerCase()) {
+                case "current":
+                    startDateTime = endDateTime.minusWeeks(3);
+                    break;
+                case "last":
+                    startDateTime = endDateTime.minusWeeks(6);
+                    endDateTime = endDateTime.minusWeeks(3);
+                    break;
+                case "none":
+                default:
+                    startDateTime = null;
+                    endDateTime = null;
+                    break;
+            }
+
+            List<Object[]> userAverages;
+            List<Object[]> teamAverages;
+
+        if (startDateTime != null) {
+            userAverages = happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(userId, startDateTime, endDateTime);
+            teamAverages = insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(teamId, userId, startDateTime, endDateTime);
+
+
+        } else {
+                userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
+                teamAverages = insightsRepository.findTeamDailyAveragesExcludingUser(teamId, userId);
+            }
+
+            Map<String, Double> teamAveragesMap = teamAverages.stream()
+                    .collect(Collectors.toMap(
+                            row -> row[0].toString(),
+                            row -> ((Number) row[1]).doubleValue()
+                    ));
+
+            return userAverages.stream()
+                    .map(userAvg -> {
+                        String day = userAvg[0].toString();
+                        double userAverage = ((Number) userAvg[1]).doubleValue();
+                        double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
+                        return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
+                    })
+                    .collect(Collectors.toList());
+
     }
+
+
 
     @Transactional(readOnly = true)
     public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(Integer userId) {

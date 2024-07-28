@@ -3,8 +3,11 @@ package ch.fhnw.deardevbackend.repositories;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -31,20 +34,28 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
     @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
             "FROM HappinessSurvey " +
             "WHERE userId = ?1 " +
+            "AND submitted BETWEEN ?2 AND ?3 " +
             "GROUP BY day")
-    List<Object[]> findDailyAveragesByUserId(Integer userId);
+    List<Object[]> findDailyAveragesByUserIdAndDateRange(Integer userId, LocalDate startDate, LocalDate endDate);
 
-//    @Query("SELECT w.teamId, w.workKindId, wk.name, AVG(w.score), COUNT(w.id) " +
-//            "FROM WorkKindSurvey w " +
-//            "JOIN WorkKind wk ON w.workKindId = wk.id " +
-//            "WHERE w.userId = ?1 " +
-//            "GROUP BY w.teamId, w.workKindId, wk.name")
-//    List<Object[]> findWorkKindHappinessByUserId(Integer userId);
 
-    @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
-            "FROM HappinessSurvey " +
-            "WHERE userId = ?2 " +
-            "AND userId IN (SELECT userId FROM TeamMember WHERE teamId = ?1) " +
+    @Query("SELECT CAST(h.submitted AS DATE) as day, AVG(h.score) as average " +
+            "FROM HappinessSurvey h " +
+            "WHERE h.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
+            "AND h.userId != :userId " +
+            "AND h.submitted BETWEEN :startDate AND :endDate " +
             "GROUP BY day")
-    List<Object[]> findHappinessInsightsByTeam(Integer teamId, Integer userId);
+    List<Object[]> findTeamDailyAveragesExcludingUserAndDateRange(@Param("teamId") Integer teamId,
+                                                                  @Param("userId") Integer userId,
+                                                                  @Param("startDate") LocalDateTime startDate,
+                                                                  @Param("endDate") LocalDateTime endDate);
+
+
+
+//    @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
+//            "FROM HappinessSurvey " +
+//            "WHERE userId = ?2 " +
+//            "AND userId IN (SELECT userId FROM TeamMember WHERE teamId = ?1) " +
+//            "GROUP BY day")
+//    List<Object[]> findHappinessInsightsByTeam(Integer teamId, Integer userId);
 }

@@ -22,11 +22,12 @@ public class InsightsController {
         return insightsService.getDailyAveragesByUserId(userId);
     }
 
-    @GetMapping("/happiness/{userId}/team/{teamId}")
+
+    @GetMapping("/happiness/{userId}/team/{teamId}/sprint/{sprint}")
     public ResponseEntity<List<HappinessInsightDTO>> getHappinessInsightsByTeam(
-            @PathVariable Integer userId, @PathVariable Integer teamId) {
+            @PathVariable Integer userId, @PathVariable Integer teamId, @PathVariable String sprint) {
         try {
-            List<HappinessInsightDTO> insights = insightsService.getHappinessInsightsByTeam(userId, teamId);
+            List<HappinessInsightDTO> insights = insightsService.getHappinessInsightsByTeam(userId, teamId, sprint);
             return ResponseEntity.ok(insights);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
