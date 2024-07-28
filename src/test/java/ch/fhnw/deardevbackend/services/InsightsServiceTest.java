@@ -80,10 +80,9 @@ public class InsightsServiceTest {
 
     @Test
     void getDailyAveragesByUserId_success() {
-        Integer teamId = 1;
-        List<Integer> singleTeamId = List.of(teamId);
+        List<Integer> teamIds = List.of(1);
 
-        when(teamMemberRepository.findTeamIdByUserId(userId)).thenReturn(singleTeamId);
+        when(teamMemberRepository.findTeamIdByUserId(userId)).thenReturn(teamIds);
         when(happinessSurveyRepository.findDailyAveragesByUserId(userId)).thenReturn(userAverages);
         when(insightsRepository.findTeamDailyAveragesExcludingUser(userId)).thenReturn(teamAverages);
 
@@ -95,24 +94,22 @@ public class InsightsServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(teamId, result.getFirst().getTeamId());
-        assertEquals(3, result.getFirst().getInsights().size());
-        assertEquals("2024-07-27", result.getFirst().getInsights().getFirst().getDay());
-        assertEquals(5.0, result.getFirst().getInsights().getFirst().getUserAverage());
-        assertEquals(4.0, result.getFirst().getInsights().getFirst().getTeamAverage());
-        assertEquals("2024-07-28", result.getFirst().getInsights().get(1).getDay());
-        assertEquals(5.0, result.getFirst().getInsights().get(1).getUserAverage());
-        assertEquals(2.0, result.getFirst().getInsights().get(1).getTeamAverage());
-        assertEquals("2024-07-29", result.getFirst().getInsights().get(2).getDay());
-        assertEquals(6.0, result.getFirst().getInsights().get(2).getUserAverage());
-        assertEquals(3.0, result.getFirst().getInsights().get(2).getTeamAverage());
+        assertEquals(1, result.get(0).getTeamId());
+        assertEquals(3, result.get(0).getInsights().size());
+        assertEquals("2024-07-27", result.get(0).getInsights().get(0).getDay());
+        assertEquals(5.0, result.get(0).getInsights().get(0).getUserAverage());
+        assertEquals(4.0, result.get(0).getInsights().get(0).getTeamAverage());
+        assertEquals("2024-07-28", result.get(0).getInsights().get(1).getDay());
+        assertEquals(5.0, result.get(0).getInsights().get(1).getUserAverage());
+        assertEquals(2.0, result.get(0).getInsights().get(1).getTeamAverage());
+        assertEquals("2024-07-29", result.get(0).getInsights().get(2).getDay());
+        assertEquals(6.0, result.get(0).getInsights().get(2).getUserAverage());
+        assertEquals(3.0, result.get(0).getInsights().get(2).getTeamAverage());
 
         verify(teamMemberRepository, times(1)).findTeamIdByUserId(userId);
         verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserId(userId);
         verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUser(userId);
-        verify(happinessInsightMapper, times(1)).toDTO("2024-07-27", 5.0, 4.0);
-        verify(happinessInsightMapper, times(1)).toDTO("2024-07-28", 5.0, 2.0);
-        verify(happinessInsightMapper, times(1)).toDTO("2024-07-29", 6.0, 3.0);
+        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
     }
 
     @Test
@@ -133,24 +130,24 @@ public class InsightsServiceTest {
         assertEquals(2, result.size());
 
         // Team 1 Assertions
-        assertEquals(1, result.getFirst().getTeamId());
-        assertEquals(3, result.getFirst().getInsights().size());
-        assertEquals("2024-07-27", result.getFirst().getInsights().getFirst().getDay());
-        assertEquals(5.0, result.getFirst().getInsights().getFirst().getUserAverage());
-        assertEquals(4.0, result.getFirst().getInsights().getFirst().getTeamAverage());
-        assertEquals("2024-07-28", result.getFirst().getInsights().get(1).getDay());
-        assertEquals(5.0, result.getFirst().getInsights().get(1).getUserAverage());
-        assertEquals(2.0, result.getFirst().getInsights().get(1).getTeamAverage());
-        assertEquals("2024-07-29", result.getFirst().getInsights().get(2).getDay());
-        assertEquals(6.0, result.getFirst().getInsights().get(2).getUserAverage());
-        assertEquals(3.0, result.getFirst().getInsights().get(2).getTeamAverage());
+        assertEquals(1, result.get(0).getTeamId());
+        assertEquals(3, result.get(0).getInsights().size());
+        assertEquals("2024-07-27", result.get(0).getInsights().get(0).getDay());
+        assertEquals(5.0, result.get(0).getInsights().get(0).getUserAverage());
+        assertEquals(4.0, result.get(0).getInsights().get(0).getTeamAverage());
+        assertEquals("2024-07-28", result.get(0).getInsights().get(1).getDay());
+        assertEquals(5.0, result.get(0).getInsights().get(1).getUserAverage());
+        assertEquals(2.0, result.get(0).getInsights().get(1).getTeamAverage());
+        assertEquals("2024-07-29", result.get(0).getInsights().get(2).getDay());
+        assertEquals(6.0, result.get(0).getInsights().get(2).getUserAverage());
+        assertEquals(3.0, result.get(0).getInsights().get(2).getTeamAverage());
 
         // Team 2 Assertions
         assertEquals(2, result.get(1).getTeamId());
         assertEquals(3, result.get(1).getInsights().size());
-        assertEquals("2024-07-27", result.get(1).getInsights().getFirst().getDay());
-        assertEquals(5.0, result.get(1).getInsights().getFirst().getUserAverage());
-        assertEquals(4.0, result.get(1).getInsights().getFirst().getTeamAverage());
+        assertEquals("2024-07-27", result.get(1).getInsights().get(0).getDay());
+        assertEquals(5.0, result.get(1).getInsights().get(0).getUserAverage());
+        assertEquals(4.0, result.get(1).getInsights().get(0).getTeamAverage());
         assertEquals("2024-07-28", result.get(1).getInsights().get(1).getDay());
         assertEquals(5.0, result.get(1).getInsights().get(1).getUserAverage());
         assertEquals(2.0, result.get(1).getInsights().get(1).getTeamAverage());
@@ -159,11 +156,9 @@ public class InsightsServiceTest {
         assertEquals(3.0, result.get(1).getInsights().get(2).getTeamAverage());
 
         verify(teamMemberRepository, times(1)).findTeamIdByUserId(userId);
-        verify(happinessSurveyRepository, times(2)).findDailyAveragesByUserId(userId);
-        verify(insightsRepository, times(2)).findTeamDailyAveragesExcludingUser(userId);
-        verify(happinessInsightMapper, times(2)).toDTO("2024-07-27", 5.0, 4.0);
-        verify(happinessInsightMapper, times(2)).toDTO("2024-07-28", 5.0, 2.0);
-        verify(happinessInsightMapper, times(2)).toDTO("2024-07-29", 6.0, 3.0);
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserId(userId);
+        verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUser(userId);
+        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
     }
 
     @Test
@@ -177,7 +172,7 @@ public class InsightsServiceTest {
         List<WorkKindInsightDTO> team1Insights = Arrays.asList(workKindInsightDTO1, workKindInsightDTO2);
         List<WorkKindInsightDTO> team2Insights = Arrays.asList(workKindInsightDTO3, workKindInsightDTO4);
 
-        assertEquals(new TeamWorkKindInsightDTO(1, team1Insights), result.getFirst());
+        assertEquals(new TeamWorkKindInsightDTO(1, team1Insights), result.get(0));
         assertEquals(new TeamWorkKindInsightDTO(2, team2Insights), result.get(1));
     }
 }

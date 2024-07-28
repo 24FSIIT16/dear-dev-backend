@@ -11,12 +11,11 @@ import java.util.List;
 @Repository
 public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integer> {
 
-
-    @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
-            "FROM HappinessSurvey " +
-            "WHERE userId IN (SELECT userId FROM TeamMember WHERE userId IN (SELECT teamId FROM TeamMember WHERE userId = ?1) AND userId != ?1) " +
-            "GROUP BY day")
-    List<Object[]> findTeamDailyAveragesExcludingUser(Integer userId);
+        @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
+                "FROM HappinessSurvey " +
+                "WHERE userId IN (SELECT userId FROM TeamMember WHERE teamId = ?1 AND userId != ?2) " +
+                "GROUP BY day")
+        List<Object[]> findTeamDailyAveragesExcludingUser(Integer teamId, Integer userId);
 
 
     @Query("SELECT wk.teamId, ws.workKindId, wk.name as workKindName, AVG(ws.score) as averageHappiness, COUNT(ws.workKindId) as totalCount " +

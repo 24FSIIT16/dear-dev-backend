@@ -9,5 +9,5 @@ import java.util.List;
 @AllArgsConstructor
 public class TeamHappinessInsightDTO {
     private Integer teamId;
-    private List<HappinessInsightDTO> insights;
+    private List<HappinessInsightDTO> insights; // todo rename happinessInsights
 }

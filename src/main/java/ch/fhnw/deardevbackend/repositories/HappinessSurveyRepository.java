@@ -20,4 +20,5 @@ public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey
 
     @Query("SELECT CAST(s.submitted AS date) AS day, AVG(s.score) AS dailyAverage FROM HappinessSurvey s WHERE s.userId = :userId GROUP BY day")
     List<Object[]> findDailyAveragesByUserId(Integer userId);
+
 }
