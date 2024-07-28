@@ -20,4 +20,9 @@ public class InsightsController {
         return insightsService.getDailyAveragesByUserId(userId);
     }
 
+    @GetMapping("/workkind/team-vs-personal/{userId}")
+    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@PathVariable  Integer userId) {
+        return insightsService.getWorkKindHappinessByUserId(userId);
+    }
+
 }

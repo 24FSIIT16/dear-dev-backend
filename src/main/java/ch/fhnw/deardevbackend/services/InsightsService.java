@@ -3,6 +3,7 @@ package ch.fhnw.deardevbackend.services;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.*;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
+import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,10 +25,13 @@ public class InsightsService {
     private HappinessSurveyRepository happinessSurveyRepository;
 
     @Autowired
+    private TeamMemberRepository teamMemberRepository;
+
+    @Autowired
     private HappinessInsightMapper happinessInsightMapper;
 
     @Autowired
-    private TeamMemberRepository teamMemberRepository;
+    private final WorkKindInsightMapper workKindInsightMapper = WorkKindInsightMapper.INSTANCE;
 
     // todo add user authorization
     @Transactional(readOnly = true)
@@ -57,5 +62,18 @@ public class InsightsService {
         } catch (Exception e) {
             throw new YappiException("Error fetching happiness insight data  " +  e);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(Integer userId) {
+        List<Object[]> results = insightsRepository.findWorkKindHappinessByUserId(userId);
+
+        Map<Integer, List<WorkKindInsightDTO>> groupedByTeam = results.stream()
+                .map(workKindInsightMapper::toDTO)
+                .collect(Collectors.groupingBy(WorkKindInsightDTO::getTeamId));
+
+        return groupedByTeam.entrySet().stream()
+                .map(entry -> new TeamWorkKindInsightDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }

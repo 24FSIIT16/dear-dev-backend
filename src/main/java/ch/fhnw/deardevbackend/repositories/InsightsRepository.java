@@ -17,4 +17,14 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "WHERE userId IN (SELECT userId FROM TeamMember WHERE userId IN (SELECT teamId FROM TeamMember WHERE userId = ?1) AND userId != ?1) " +
             "GROUP BY day")
     List<Object[]> findTeamDailyAveragesExcludingUser(Integer userId);
+
+
+    @Query("SELECT wk.teamId, ws.workKindId, wk.name as workKindName, AVG(ws.score) as averageHappiness, COUNT(ws.workKindId) as totalCount " +
+            "FROM WorkKindSurvey ws " +
+            "JOIN WorkKind wk ON ws.workKindId = wk.id " +
+            "WHERE ws.userId = :userId " +
+            "GROUP BY wk.teamId, ws.workKindId, wk.name " +
+            "ORDER BY wk.teamId, ws.workKindId")
+    List<Object[]> findWorkKindHappinessByUserId(Integer userId);
+
 }
