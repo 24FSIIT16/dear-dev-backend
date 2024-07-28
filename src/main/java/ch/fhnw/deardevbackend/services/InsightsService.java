@@ -61,6 +61,26 @@ public class InsightsService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<HappinessInsightDTO> getHappinessInsightsByTeam(Integer userId, Integer teamId) {
+        List<Object[]> userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
+        List<Object[]> teamAverages = insightsRepository.findTeamDailyAveragesExcludingUser(teamId, userId);
+
+        Map<String, Double> teamAveragesMap = teamAverages.stream()
+                .collect(Collectors.toMap(
+                        row -> row[0].toString(),
+                        row -> ((Number) row[1]).doubleValue()
+                ));
+
+        return userAverages.stream()
+                .map(userAvg -> {
+                    String day = userAvg[0].toString();
+                    double userAverage = ((Number) userAvg[1]).doubleValue();
+                    double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
+                    return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
+                })
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(Integer userId) {
