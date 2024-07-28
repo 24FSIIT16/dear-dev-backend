@@ -9,7 +9,6 @@ import ch.fhnw.deardevbackend.dto.TeamHappinessInsightDTO;
 import ch.fhnw.deardevbackend.dto.TeamWorkKindInsightDTO;
 import ch.fhnw.deardevbackend.dto.WorkKindInsightDTO;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
-import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.InsightsRepository;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
 import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
