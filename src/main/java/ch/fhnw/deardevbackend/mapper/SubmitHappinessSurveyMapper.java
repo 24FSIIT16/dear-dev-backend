@@ -11,7 +11,7 @@ import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 public interface SubmitHappinessSurveyMapper {
     SubmitHappinessSurveyMapper INSTANCE = Mappers.getMapper(SubmitHappinessSurveyMapper.class);
 
-    @Mapping(target = "submitted", expression = "java(java.time.OffsetDateTime.now().toString())")
+    @Mapping(target = "submitted", expression = "java(java.time.LocalDateTime.now())")
     HappinessSurvey toHappinessSurvey(SubmitHappinessSurveyDTO dto);
 }
 

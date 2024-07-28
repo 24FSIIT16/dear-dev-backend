@@ -14,8 +14,6 @@ import java.util.List;
 @Repository
 public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integer> {
 
-    // todo do not hardccode user id!!
-////
     @Query("SELECT wk.teamId, ws.workKindId, wk.name as workKindName, AVG(ws.score) as averageHappiness, COUNT(ws.workKindId) as totalCount " +
             "FROM WorkKindSurvey ws " +
             "JOIN WorkKind wk ON ws.workKindId = wk.id " +
@@ -31,14 +29,6 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "GROUP BY day")
     List<Object[]> findTeamDailyAveragesExcludingUser(Integer teamId, Integer userId);
 
-    @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
-            "FROM HappinessSurvey " +
-            "WHERE userId = ?1 " +
-            "AND submitted BETWEEN ?2 AND ?3 " +
-            "GROUP BY day")
-    List<Object[]> findDailyAveragesByUserIdAndDateRange(Integer userId, LocalDate startDate, LocalDate endDate);
-
-
     @Query("SELECT CAST(h.submitted AS DATE) as day, AVG(h.score) as average " +
             "FROM HappinessSurvey h " +
             "WHERE h.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
@@ -49,13 +39,4 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
                                                                   @Param("userId") Integer userId,
                                                                   @Param("startDate") LocalDateTime startDate,
                                                                   @Param("endDate") LocalDateTime endDate);
-
-
-
-//    @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
-//            "FROM HappinessSurvey " +
-//            "WHERE userId = ?2 " +
-//            "AND userId IN (SELECT userId FROM TeamMember WHERE teamId = ?1) " +
-//            "GROUP BY day")
-//    List<Object[]> findHappinessInsightsByTeam(Integer teamId, Integer userId);
 }
