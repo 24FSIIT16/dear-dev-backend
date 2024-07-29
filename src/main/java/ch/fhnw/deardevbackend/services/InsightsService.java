@@ -48,7 +48,7 @@ public class InsightsService {
     // todo later asap structure is defined
     private WorkKindInsightDTO findMatchingWorkKindInsight(HappinessInsightDTO happinessInsightDTO, List<WorkKindInsightDTO> workKindInsights) {
         return workKindInsights.stream()
-               // .filter(workKindInsightDTO -> workKindInsightDTO.getTeamId().equals(happinessInsightDTO.getTeamId()))
+                // .filter(workKindInsightDTO -> workKindInsightDTO.getTeamId().equals(happinessInsightDTO.getTeamId()))
                 .findFirst()
                 .orElse(null);
     }
