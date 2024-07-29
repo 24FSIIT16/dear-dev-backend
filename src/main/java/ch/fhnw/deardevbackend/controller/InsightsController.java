@@ -17,19 +17,6 @@ public class InsightsController {
     @Autowired
     private InsightsService insightsService;
 
-//    @GetMapping("happiness/team-vs-personal/{userId}")
-//    public List<TeamHappinessInsightDTO> getDailyAverages(@PathVariable Integer userId) {
-//        return insightsService.getDailyAveragesByUserId(userId);
-//    }
-
-//    @GetMapping("/workkind/team-vs-personal/{userId}")
-//    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@PathVariable  Integer userId) {
-//        return insightsService.getWorkKindHappinessByUserId(userId);
-//    }
-//
-
-
-
     // Line Chart: overall happiness team vs personal
     @GetMapping("/happiness/{userId}/team/{teamId}/sprint/{sprint}")
     public ResponseEntity<List<HappinessInsightDTO>> getHappinessInsightsByTeam(
@@ -44,7 +31,8 @@ public class InsightsController {
 
     // Bar Chart: workkind team vs personal
     @GetMapping("/workkind/{userId}/team/{teamId}/sprint/{sprint}")
-    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(  @PathVariable Integer userId, @PathVariable Integer teamId, @PathVariable String sprint) {
+    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@PathVariable Integer userId, @PathVariable Integer teamId, @PathVariable String sprint) {
+        //        return insightsService.getWorkKindHappinessByUserId(userId);
         return List.of();
     }
 
@@ -53,17 +41,10 @@ public class InsightsController {
     // y: workkind, velocity
     // x: days
 
-
     // Radar Chart
     // Top 10 Emotions Personal & Team
 
     // Radar Chart
     // Top 10 Workkinds Personal & Team
-
-// -----
-
-    // Pie Chart/ Donut
-    // overall happiness - 50% happy, 20% unhappy, 10%, 10%  --> personal?
-
 
 }

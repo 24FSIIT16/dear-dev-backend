@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,6 +36,5 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "GROUP BY day")
     List<Object[]> findTeamDailyAveragesExcludingUserAndDateRange(@Param("teamId") Integer teamId,
                                                                   @Param("userId") Integer userId,
-                                                                  @Param("startDate") LocalDateTime startDate,
-                                                                  @Param("endDate") LocalDateTime endDate);
+                                                                  @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 }
