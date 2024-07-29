@@ -1,5 +1,6 @@
 package ch.fhnw.deardevbackend.services;
 
+import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
 import ch.fhnw.deardevbackend.dto.*;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
@@ -37,7 +38,7 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
-    public List<TeamHappinessInsightDTO> getDailyAveragesByUserId(Integer userId) {
+    public List<TeamHappinessInsightDTO> getDailyAveragesByUserId(@ValidateUserIdParam Integer userId) {
         List<Integer> teamIds = teamMemberRepository.findTeamIdByUserId(userId);
 
         return teamIds.stream().map(teamId -> {
@@ -62,7 +63,7 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
-    public List<HappinessInsightDTO> getHappinessInsightsByTeam(Integer userId, Integer teamId, String sprint) {
+    public List<HappinessInsightDTO> getHappinessInsightsByTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
         LocalDateTime startDate = null;
         LocalDateTime endDate = LocalDateTime.now();
 
@@ -114,7 +115,7 @@ public class InsightsService {
 
 
     @Transactional(readOnly = true)
-    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(Integer userId) {
+    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@ValidateUserIdParam Integer userId) {
         List<Object[]> results = insightsRepository.findWorkKindHappinessByUserId(userId);
 
         Map<Integer, List<WorkKindInsightDTO>> groupedByTeam = results.stream()
