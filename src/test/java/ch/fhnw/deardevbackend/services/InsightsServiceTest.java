@@ -11,7 +11,6 @@ import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.InsightsRepository;
 import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
-import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
