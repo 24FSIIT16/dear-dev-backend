@@ -19,11 +19,10 @@ public class InsightsController {
 
     // Overall
     @GetMapping("/{userId}/team/{teamId}/sprint/{sprint}")
-    public ResponseEntity<List<InsightDTO>> getInsightsByTeam(
-            @PathVariable Integer userId,
-            @PathVariable Integer teamId,
-            @PathVariable String sprint) {
-        List<InsightDTO> insights = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
+    public ResponseEntity<InsightDTO> getInsightsByTeamAndSprint(@PathVariable Integer userId,
+                                                                 @PathVariable Integer teamId,
+                                                                 @PathVariable String sprint) {
+        InsightDTO insights = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
         return ResponseEntity.ok(insights);
     }
 

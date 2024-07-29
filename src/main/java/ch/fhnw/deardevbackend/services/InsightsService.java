@@ -38,13 +38,11 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
-    public List<InsightDTO> getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
+    public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
         List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
         List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserId(userId);
 
-        return happinessInsights.stream()
-                .map(happinessInsightDTO -> new InsightDTO(happinessInsightDTO, findMatchingWorkKindInsight(happinessInsightDTO, workKindInsights)))
-                .collect(Collectors.toList());
+        return new InsightDTO(happinessInsights, workKindInsights);
     }
 
     // todo later asap structure is defined
