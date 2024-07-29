@@ -1,5 +1,7 @@
 package ch.fhnw.deardevbackend.services;
 
+import ch.fhnw.deardevbackend.annotations.ValidateUserId;
+import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.*;
 import ch.fhnw.deardevbackend.entities.EmotionSurvey;
@@ -44,6 +46,7 @@ public class DashboardService {
     @Autowired
     private SubmitEmotionSurveyMapper submitEmotionSurveyMapper;
 
+    @ValidateUserId
     @Transactional
     public HappinessSurvey saveHappinessSurvey(SubmitHappinessSurveyDTO dto) {
         try {
@@ -54,6 +57,7 @@ public class DashboardService {
         }
     }
 
+    @ValidateUserId
     @Transactional
     public WorkKindSurvey saveWorkKindSurvey(SubmitWorkKindSurveyDTO dto) {
         try {
@@ -64,6 +68,7 @@ public class DashboardService {
         }
     }
 
+    @ValidateUserId
     @Transactional
     public EmotionSurvey saveEmotionSurvey(SubmitEmotionSurveyDTO dto) {
         try {
@@ -75,7 +80,7 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public Integer getAverageScoreByUserId(Integer userId) {
+    public Integer getAverageScoreByUserId(@ValidateUserIdParam Integer userId) {
         try {
             List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
 
@@ -96,7 +101,7 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public DashboardDTO getDashboardDataByUserId(Integer userId) {
+    public DashboardDTO getDashboardDataByUserId(@ValidateUserIdParam Integer userId) {
         try {
 
             Integer averageScore = getAverageScoreByUserId(userId);
