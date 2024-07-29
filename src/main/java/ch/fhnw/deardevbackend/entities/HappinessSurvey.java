@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +23,7 @@ public class HappinessSurvey {
     private Integer userId;
 
     @Column(name = "submitted", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
-    private String submitted;
+    private LocalDateTime submitted;
 
     @Column(name = "score")
     private Integer score;

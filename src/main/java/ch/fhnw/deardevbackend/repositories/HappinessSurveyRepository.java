@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -20,4 +21,15 @@ public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey
 
     @Query("SELECT CAST(s.submitted AS date) AS day, AVG(s.score) AS dailyAverage FROM HappinessSurvey s WHERE s.userId = :userId GROUP BY day")
     List<Object[]> findDailyAveragesByUserId(Integer userId);
+
+
+    @Query("SELECT CAST(s.submitted AS date) AS day, AVG(s.score) AS dailyAverage " +
+            "FROM HappinessSurvey s " +
+            "WHERE s.userId = :userId " +
+            "AND s.submitted BETWEEN :startDate AND :endDate " +
+            "GROUP BY day")
+    List<Object[]> findDailyAveragesByUserIdAndDateRange(@Param("userId") Integer userId,
+                                                         @Param("startDate") LocalDateTime startDate,
+                                                         @Param("endDate") LocalDateTime endDate);
+
 }

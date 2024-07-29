@@ -19,8 +19,6 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
-    // todo ensure only logged in user can post his entries
-
     @GetMapping("/{userId}")
     public ResponseEntity<DashboardDTO> getDashboardDataByUserId(@PathVariable Integer userId) {
         DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
