@@ -38,6 +38,25 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
+    public List<InsightDTO> getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
+        List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
+        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserId(userId);
+
+        return happinessInsights.stream()
+                .map(happinessInsightDTO -> new InsightDTO(happinessInsightDTO, findMatchingWorkKindInsight(happinessInsightDTO, workKindInsights)))
+                .collect(Collectors.toList());
+    }
+
+    // todo later asap structure is defined
+    private WorkKindInsightDTO findMatchingWorkKindInsight(HappinessInsightDTO happinessInsightDTO, List<WorkKindInsightDTO> workKindInsights) {
+        return workKindInsights.stream()
+               // .filter(workKindInsightDTO -> workKindInsightDTO.getTeamId().equals(happinessInsightDTO.getTeamId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+    @Transactional(readOnly = true)
     public List<TeamHappinessInsightDTO> getDailyAveragesByUserId(@ValidateUserIdParam Integer userId) {
         List<Integer> teamIds = teamMemberRepository.findTeamIdByUserId(userId);
 
@@ -113,12 +132,11 @@ public class InsightsService {
 
     }
 
-
     @Transactional(readOnly = true)
-    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@ValidateUserIdParam Integer userId) {
+    public List<WorkKindInsightDTO> getWorkKindInsightsByUserId(@ValidateUserIdParam Integer userId) {
         List<Object[]> results = insightsRepository.findWorkKindHappinessByUserId(userId);
 
-        Map<Integer, List<WorkKindInsightDTO>> groupedByTeam = results.stream()
+        return results.stream()
                 .map(row -> workKindInsightMapper.toDTO(
                         (Integer) row[0],
                         (Integer) row[1],
@@ -126,10 +144,6 @@ public class InsightsService {
                         (Double) row[3],
                         (Long) row[4]
                 ))
-                .collect(Collectors.groupingBy(WorkKindInsightDTO::getTeamId));
-
-        return groupedByTeam.entrySet().stream()
-                .map(entry -> new TeamWorkKindInsightDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 }
