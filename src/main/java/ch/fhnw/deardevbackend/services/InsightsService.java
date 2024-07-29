@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class InsightsService {
@@ -38,28 +40,11 @@ public class InsightsService {
     }
 
     @Transactional(readOnly = true)
-    public List<TeamHappinessInsightDTO> getDailyAveragesByUserId(@ValidateUserIdParam Integer userId) {
-        List<Integer> teamIds = teamMemberRepository.findTeamIdByUserId(userId);
+    public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
+        List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
+        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserId(userId);
 
-        return teamIds.stream().map(teamId -> {
-            List<Object[]> userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
-            List<Object[]> teamAverages = insightsRepository.findTeamDailyAveragesExcludingUser(teamId, userId);
-
-            List<HappinessInsightDTO> insights = userAverages.stream().map(userAvg -> {
-                String day = userAvg[0].toString();
-                double userAverage = ((Number) userAvg[1]).doubleValue();
-
-                double teamAverage = teamAverages.stream()
-                        .filter(teamAvg -> teamAvg[0].toString().equals(day))
-                        .map(teamAvg -> ((Number) teamAvg[1]).doubleValue())
-                        .findFirst()
-                        .orElse(0.0);
-
-                return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
-            }).collect(Collectors.toList());
-
-            return new TeamHappinessInsightDTO(teamId, insights);
-        }).collect(Collectors.toList());
+        return new InsightDTO(happinessInsights, workKindInsights);
     }
 
     @Transactional(readOnly = true)
@@ -109,16 +94,26 @@ public class InsightsService {
                     double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
                     return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
                 })
+                .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
                 .collect(Collectors.toList());
 
     }
 
+    // todo later asap structure is defined
+    private WorkKindInsightDTO findMatchingWorkKindInsight(HappinessInsightDTO happinessInsightDTO, List<WorkKindInsightDTO> workKindInsights) {
+        return workKindInsights.stream()
+                // .filter(workKindInsightDTO -> workKindInsightDTO.getTeamId().equals(happinessInsightDTO.getTeamId()))
+                .findFirst()
+                .orElse(null);
+    }
 
+
+    // todo remove
     @Transactional(readOnly = true)
-    public List<TeamWorkKindInsightDTO> getWorkKindHappinessByUserId(@ValidateUserIdParam Integer userId) {
+    public List<WorkKindInsightDTO> getWorkKindInsightsByUserId(@ValidateUserIdParam Integer userId) {
         List<Object[]> results = insightsRepository.findWorkKindHappinessByUserId(userId);
 
-        Map<Integer, List<WorkKindInsightDTO>> groupedByTeam = results.stream()
+        return results.stream()
                 .map(row -> workKindInsightMapper.toDTO(
                         (Integer) row[0],
                         (Integer) row[1],
@@ -126,10 +121,6 @@ public class InsightsService {
                         (Double) row[3],
                         (Long) row[4]
                 ))
-                .collect(Collectors.groupingBy(WorkKindInsightDTO::getTeamId));
-
-        return groupedByTeam.entrySet().stream()
-                .map(entry -> new TeamWorkKindInsightDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 }
