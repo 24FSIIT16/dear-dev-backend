@@ -25,7 +25,7 @@ VALUES ('Coding'),
 INSERT INTO work_kind (name, team_id)
 VALUES ('Team Huddle', 998),
        ('Bowling', 998),
-        ('Team Huddle', 999),
+       ('Team Huddle', 999),
        ('Bowling', 999);
 
 INSERT INTO emotion (name)
