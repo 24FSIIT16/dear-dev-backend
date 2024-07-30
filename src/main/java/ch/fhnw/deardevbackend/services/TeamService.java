@@ -62,7 +62,6 @@ public class TeamService {
 
         List<WorkKind> defaultWorkKinds = createDefaultWorkKinds(savedTeam.getId());
         List<Integer> defaultWorkKindIds = defaultWorkKinds.stream().map(WorkKind::getId).toList();
-
         TeamConfig config = TeamConfig.builder()
                 .workKindIds(defaultWorkKindIds)
                 .happinessSurvey(true)
@@ -71,7 +70,6 @@ public class TeamService {
                 .build();
 
         TeamConfig savedTeamConfig = teamConfigRepository.save(config);
-
         savedTeam.setConfigId(savedTeamConfig.getId());
         teamRepository.save(savedTeam);
 
@@ -81,8 +79,8 @@ public class TeamService {
                 .role(Role.ADMIN)
                 .active(true)
                 .build();
-
         teamMemberRepository.save(teamMember);
+        
         return savedTeam;
     }
 
@@ -138,7 +136,6 @@ public class TeamService {
                             workKindRepository.save(workKind);
                         }
                     } else {
-
                         workKind = workKindRepository.findByNameAndTeamId(workKindDTO.getName(), teamId)
                                 .orElseGet(() -> {
                                     WorkKind newWorkKind = new WorkKind();

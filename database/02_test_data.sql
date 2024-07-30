@@ -22,8 +22,11 @@ VALUES ('Coding'),
        ('Review'),
        ('Retrospective');
 INSERT INTO work_kind (name, team_id)
-VALUES ('Team Huddle', 998),
-       ('Bowling', 999);
+    cast
+(VALUES ('Team Huddle', 998),
+        ('Bowling', 999),
+        ('Team Huddle', 999),
+        ;
 
 INSERT INTO emotion (name)
 VALUES ('Angry'),
