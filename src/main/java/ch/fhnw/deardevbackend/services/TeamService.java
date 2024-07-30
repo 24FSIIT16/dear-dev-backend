@@ -17,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,6 +112,52 @@ public class TeamService {
                 .toList();
 
         return teamConfigMapper.toTeamConfigDTO(config, team, workKindDTOs);
+    }
+
+    @Transactional
+    public TeamConfigDTO updateTeamConfig(Integer teamId, TeamConfigDTO updateDTO) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new YappiException("Team not found with id: " + teamId));
+        team.setName(updateDTO.getTeamName());
+
+        TeamConfig teamConfig = teamConfigRepository.findById(team.getConfigId()).orElseThrow(() -> new YappiException("Team config not found with id: " + team.getConfigId()));
+        teamConfig.setHappinessSurvey(updateDTO.getHappinessSurvey());
+        teamConfig.setWorkKindSurvey(updateDTO.getWorkKindSurvey());
+        teamConfig.setEmotionSurvey(updateDTO.getEmotionSurvey());
+
+        List<WorkKind> updatedWorkKinds = updateDTO.getWorkKinds().stream()
+                .map(workKindDTO -> {
+                    WorkKind workKind;
+                    if (workKindDTO.getId() != null) {
+                        workKind = workKindRepository.findById(workKindDTO.getId()).orElseGet(() -> workKindRepository.save(teamConfigMapper.toWorkKind(workKindDTO)));
+                        if (workKind.getId().equals(workKindDTO.getId())) {
+                            workKind.setName(workKindDTO.getName());
+                            workKindRepository.save(workKind);
+                        }
+                    } else {
+
+                        workKind = workKindRepository.findByNameAndTeamId(workKindDTO.getName(), teamId)
+                                .orElseGet(() -> {
+                                    WorkKind newWorkKind = new WorkKind();
+                                    newWorkKind.setName(workKindDTO.getName());
+                                    newWorkKind.setTeamId(teamId);
+                                    return workKindRepository.save(newWorkKind);
+                                });
+                    }
+                    return workKind;
+                })
+                .toList();
+
+        List<Integer> updatedWorkKindIds = updatedWorkKinds.stream().map(WorkKind::getId).toList();
+        List<Integer> newWorkKindIds = new ArrayList<>(updatedWorkKindIds);
+        teamConfig.setWorkKindIds(newWorkKindIds);
+        teamConfig.setWorkKinds(updatedWorkKinds);
+
+        teamRepository.save(team);
+        teamConfigRepository.save(teamConfig);
+
+        List<WorkKindDTO> workKindDTOs = updatedWorkKinds.stream().map(teamConfigMapper::toWorkKindDTO).toList();
+
+        return teamConfigMapper.toTeamConfigDTO(teamConfig, team, workKindDTOs);
     }
 
     private String generateUniqueTeamCode() {

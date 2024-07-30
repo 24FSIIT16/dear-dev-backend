@@ -24,4 +24,6 @@ public interface TeamConfigMapper {
     TeamConfigDTO toTeamConfigDTO(TeamConfig config, Team team, List<WorkKindDTO> workKinds);
 
     WorkKindDTO toWorkKindDTO(WorkKind workKind);
+
+    WorkKind toWorkKind(WorkKindDTO workKindDTO);
 }

@@ -38,6 +38,12 @@ public class TeamController {
         return ResponseEntity.ok().body(config);
     }
 
+    @PutMapping("/{teamId}/config")
+    public ResponseEntity<TeamConfigDTO> updateTeamConfig(@PathVariable Integer teamId, @RequestBody TeamConfigDTO request) {
+        TeamConfigDTO updatedConfig = teamService.updateTeamConfig(teamId, request);
+        return ResponseEntity.ok().body(updatedConfig);
+    }
+
     @PostMapping("/join")
     public ResponseEntity<Team> joinTeam(@RequestBody JoinTeamDTO request) {
         Team team = teamService.joinTeam(request);
