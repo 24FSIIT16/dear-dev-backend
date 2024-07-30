@@ -1,16 +1,15 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
-import ch.fhnw.deardevbackend.dto.CreateTeamDTO;
-import ch.fhnw.deardevbackend.dto.JoinTeamDTO;
-import ch.fhnw.deardevbackend.dto.TeamAndRoleDTO;
-import ch.fhnw.deardevbackend.entities.Role;
-import ch.fhnw.deardevbackend.entities.Team;
-import ch.fhnw.deardevbackend.entities.TeamMember;
+import ch.fhnw.deardevbackend.dto.*;
+import ch.fhnw.deardevbackend.entities.*;
 import ch.fhnw.deardevbackend.mapper.CreateTeamMapper;
 import ch.fhnw.deardevbackend.mapper.TeamAndRoleMapper;
+import ch.fhnw.deardevbackend.mapper.TeamConfigMapper;
+import ch.fhnw.deardevbackend.repositories.TeamConfigRepository;
 import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
 import ch.fhnw.deardevbackend.repositories.TeamRepository;
+import ch.fhnw.deardevbackend.repositories.WorkKindRepository;
 import ch.fhnw.deardevbackend.util.TeamCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +30,15 @@ public class TeamService {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
     @Autowired
+    private TeamConfigRepository teamConfigRepository;
+    @Autowired
+    private WorkKindRepository workKindRepository;
+    @Autowired
     private CreateTeamMapper createTeamMapper;
     @Autowired
     private TeamAndRoleMapper teamAndRoleMapper;
+    @Autowired
+    private TeamConfigMapper teamConfigMapper;
 
     public List<TeamAndRoleDTO> getTeamsAndRoleByUserId(Integer userId) {
         List<TeamMember> teamMembers = teamMemberRepository.findByUserId(userId);
@@ -49,8 +55,18 @@ public class TeamService {
     public Team createTeam(CreateTeamDTO teamDTO) {
         String uniqueCode = generateUniqueTeamCode();
 
+        TeamConfig config = TeamConfig.builder()
+                .workKindIds(Arrays.asList(1, 2))
+                .happinessSurvey(true)
+                .workKindSurvey(true)
+                .emotionSurvey(true)
+                .build();
+
+        TeamConfig savedTeamConfig = teamConfigRepository.save(config);
+
         Team team = createTeamMapper.toTeam(teamDTO);
         team.setCode(uniqueCode);
+        team.setConfigId(savedTeamConfig.getId());
 
         Team savedTeam = teamRepository.save(team);
 
@@ -82,6 +98,19 @@ public class TeamService {
             throw new YappiException("User with id: " + joinTeamDTO.getUserId() + " is already a member of the team with id: " + team.getId());
         }
         return team;
+    }
+
+    @Transactional(readOnly = true)
+    public TeamConfigDTO getTeamConfigByTeamId(Integer teamId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new YappiException("Team not found with id: " + teamId));
+        Integer configId = team.getConfigId();
+        TeamConfig config = teamConfigRepository.findById(configId).orElseThrow(() -> new YappiException("Team config not found with id: " + configId));
+        List<WorkKind> workKinds = workKindRepository.findAllById(config.getWorkKindIds());
+        List<WorkKindDTO> workKindDTOs = workKinds.stream()
+                .map(teamConfigMapper::toWorkKindDTO)
+                .toList();
+
+        return teamConfigMapper.toTeamConfigDTO(config, team, workKindDTOs);
     }
 
     private String generateUniqueTeamCode() {

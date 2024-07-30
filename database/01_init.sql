@@ -73,10 +73,20 @@ CREATE TABLE team_member
 
 CREATE TABLE team_config
 (
-    id         SERIAL,
-    work_kinds VARCHAR[],
+    id               SERIAL,
+    happiness_survey BOOLEAN,
+    work_kind_survey BOOLEAN,
+    emotion_survey   BOOLEAN,
 
     PRIMARY KEY (id)
+);
+
+CREATE TABLE team_config_work_kinds
+(
+    team_config_id INTEGER NOT NULL,
+    work_kind_id   INTEGER NOT NULL,
+
+    FOREIGN KEY (team_config_id) REFERENCES team_config (id)
 );
 
 -- Add constraints to the tables

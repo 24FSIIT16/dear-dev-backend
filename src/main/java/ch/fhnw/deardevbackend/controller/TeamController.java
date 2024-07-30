@@ -5,6 +5,7 @@ import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.CreateTeamDTO;
 import ch.fhnw.deardevbackend.dto.JoinTeamDTO;
 import ch.fhnw.deardevbackend.dto.TeamAndRoleDTO;
+import ch.fhnw.deardevbackend.dto.TeamConfigDTO;
 import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,12 @@ public class TeamController {
     public ResponseEntity<Team> createTeam(@RequestBody CreateTeamDTO request) {
         Team createdTeam = teamService.createTeam(request);
         return ResponseEntity.ok().body(createdTeam);
+    }
+
+    @GetMapping("/{teamId}/config")
+    public ResponseEntity<TeamConfigDTO> getTeamConfigByTeamId(@PathVariable Integer teamId) {
+        TeamConfigDTO config = teamService.getTeamConfigByTeamId(teamId);
+        return ResponseEntity.ok().body(config);
     }
 
     @PostMapping("/join")

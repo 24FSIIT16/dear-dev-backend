@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +19,20 @@ public class TeamConfig {
     @Id
     private Integer id;
 
-    @Column(name = "work_kinds")
-    private String workKinds;
+    @ElementCollection
+    @CollectionTable(name = "team_config_work_kinds", joinColumns = @JoinColumn(name = "team_config_id"))
+    @Column(name = "work_kind_id")
+    private List<Integer> workKindIds;
+
+    @Transient
+    private List<WorkKind> workKinds;
+
+    @Column(name = "happiness_survey")
+    private Boolean happinessSurvey;
+
+    @Column(name = "work_kind_survey")
+    private Boolean workKindSurvey;
+
+    @Column(name = "emotion_survey")
+    private Boolean emotionSurvey;
 }
