@@ -56,8 +56,15 @@ public class TeamService {
     public Team createTeam(CreateTeamDTO teamDTO) {
         String uniqueCode = generateUniqueTeamCode();
 
+        Team team = createTeamMapper.toTeam(teamDTO);
+        team.setCode(uniqueCode);
+        Team savedTeam = teamRepository.save(team);
+
+        List<WorkKind> defaultWorkKinds = createDefaultWorkKinds(savedTeam.getId());
+        List<Integer> defaultWorkKindIds = defaultWorkKinds.stream().map(WorkKind::getId).toList();
+
         TeamConfig config = TeamConfig.builder()
-                .workKindIds(Arrays.asList(1, 2))
+                .workKindIds(defaultWorkKindIds)
                 .happinessSurvey(true)
                 .workKindSurvey(true)
                 .emotionSurvey(true)
@@ -65,11 +72,8 @@ public class TeamService {
 
         TeamConfig savedTeamConfig = teamConfigRepository.save(config);
 
-        Team team = createTeamMapper.toTeam(teamDTO);
-        team.setCode(uniqueCode);
-        team.setConfigId(savedTeamConfig.getId());
-
-        Team savedTeam = teamRepository.save(team);
+        savedTeam.setConfigId(savedTeamConfig.getId());
+        teamRepository.save(savedTeam);
 
         TeamMember teamMember = TeamMember.builder()
                 .userId(teamDTO.getUserId())
@@ -170,5 +174,14 @@ public class TeamService {
 
     public List<Integer> getTeamIdsForUser(int userId) {
         return teamMemberRepository.findTeamIdByUserId(userId);
+    }
+
+    private List<WorkKind> createDefaultWorkKinds(Integer teamId) {
+        List<WorkKind> defaultWorkKinds = Arrays.asList(
+                new WorkKind(null, "Coding", teamId),
+                new WorkKind(null, "Meeting", teamId),
+                new WorkKind(null, "Scrum Events", teamId)
+        );
+        return workKindRepository.saveAll(defaultWorkKinds);
     }
 }
