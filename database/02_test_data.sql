@@ -11,19 +11,22 @@ VALUES (990, 100001, 998, 'ADMIN', true);
 INSERT INTO team_member (id, user_id, team_id, role, active)
 VALUES (999, 100002, 999, 'MEMBER', true);
 
-INSERT INTO team_config (id, work_kinds)
-VALUES (1, '{CODING,MEETING}');
-
-INSERT INTO work_kind (name)
-VALUES ('Coding'),
-       ('Meeting'),
-       ('Daily Standup'),
-       ('Planning'),
-       ('Review'),
-       ('Retrospective');
-INSERT INTO work_kind (name, team_id)
-VALUES ('Team Huddle', 998),
-       ('Bowling', 999);
+-- INSERT INTO team_config (id, work_kinds)
+-- VALUES (1, '{CODING,MEETING}');
+--
+-- INSERT INTO work_kind (name)
+-- VALUES ('Coding'),
+--        ('Meeting'),
+--        ('Daily Standup'),
+--        ('Planning'),
+--        ('Review'),
+--        ('Retrospective');
+--
+-- INSERT INTO work_kind (name, team_id)
+-- VALUES ('Team Huddle', 998),
+--        ('Bowling', 998),
+--        ('Team Huddle', 999),
+--        ('Bowling', 999);
 
 INSERT INTO emotion (name)
 VALUES ('Angry'),
@@ -47,9 +50,11 @@ VALUES (100001, 4),
        (100001, 2),
        (100001, 3),
        (100002, 1);
-INSERT INTO work_kind_survey (user_id, score, work_kind_id)
-VALUES (100001, 6, 1),
-       (100002, 7, 2);
+
+-- INSERT INTO work_kind_survey (user_id, score, work_kind_id)
+-- VALUES (100001, 6, 1),
+--        (100002, 7, 2);
+
 INSERT INTO emotion_survey (user_id, emotion_id)
 VALUES (100001, 1),
        (100002, 2);
