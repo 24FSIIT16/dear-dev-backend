@@ -1,6 +1,7 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
+import ch.fhnw.deardevbackend.dto.insights.EmotionInsightDTO;
 import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
 import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
 import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
@@ -41,19 +42,20 @@ public class InsightsService {
     public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
         List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
         List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserAndTeam(userId, teamId, sprint);
+        List<EmotionInsightDTO> emotionInsights = getEmotionInsightsByUserAndTeam(userId, teamId, sprint);
 
         double userAverageHappiness = calculateAverageHappiness(happinessInsights, true);
         double teamAverageHappiness = calculateAverageHappiness(happinessInsights, false);
 
-        return new InsightDTO(happinessInsights, workKindInsights, userAverageHappiness, teamAverageHappiness);
+        return new InsightDTO(happinessInsights, workKindInsights, emotionInsights, userAverageHappiness, teamAverageHappiness);
     }
 
 
-    // Happiness insights
+    ///// Happiness insights
 
     @Transactional(readOnly = true)
     public List<HappinessInsightDTO> getHappinessInsightsByTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
-// later todo
+//  todo
 // LocalDateTime startDate = getSprintStartDate(sprint);
 // LocalDateTime endDate = getSprintEndDate(sprint);
 
@@ -115,13 +117,13 @@ public class InsightsService {
                 .orElse(0.0);
     }
 
-    // Workkind insights
+    ///// Workkind insights
 
     @Transactional(readOnly = true)
     public List<WorkKindInsightDTO> getWorkKindInsightsByUserAndTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
-    // later todo
-    // LocalDateTime startDate = getSprintStartDate(sprint);
-    // LocalDateTime endDate = getSprintEndDate(sprint);
+        // later todo
+        // LocalDateTime startDate = getSprintStartDate(sprint);
+        // LocalDateTime endDate = getSprintEndDate(sprint);
 
         LocalDateTime startDate = null;
         LocalDateTime endDate = LocalDateTime.now();
@@ -186,21 +188,98 @@ public class InsightsService {
 
         for (WorkKindInsightDTO teamInsight : teamWorkKindInsights) {
             if (teamInsight != null) {
-            merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> {
-                return new WorkKindInsightDTO(
-                        userDto.getWorkKindId(),
-                        userDto.getWorkKindName(),
-                        userDto.getUserAverage() != null ? userDto.getUserAverage() : 0.0,
-                        userDto.getUserCount() != null ? userDto.getUserCount() : 0L,
-                        teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0.0,
-                        teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
-                );
-            });
-        }}
+                merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> {
+                    return new WorkKindInsightDTO(
+                            userDto.getWorkKindId(),
+                            userDto.getWorkKindName(),
+                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0.0,
+                            userDto.getUserCount() != null ? userDto.getUserCount() : 0L,
+                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0.0,
+                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
+                    );
+                });
+            }
+        }
 
         return merged.values().stream()
                 .sorted(Comparator.comparingLong((WorkKindInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
                 .limit(5)
+                .collect(Collectors.toList());
+    }
+
+
+    ///// Emotion insights
+
+    @Transactional(readOnly = true)
+    public List<EmotionInsightDTO> getEmotionInsightsByUserAndTeam(Integer userId, Integer teamId, String sprint) {
+        // todo temp
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = LocalDateTime.now();
+
+        switch (sprint.toLowerCase()) {
+            case "current":
+                startDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "last":
+                startDate = LocalDateTime.now().minusWeeks(6);
+                endDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "none":
+            default:
+                startDate = null;
+                endDate = null;
+                break;
+        }
+
+        List<Object[]> userEmotions;
+        List<Object[]> teamEmotions;
+
+        if (startDate != null) {
+            userEmotions = insightsRepository.findTopEmotionsByUserAndDateRange(userId, startDate, endDate);
+            teamEmotions = insightsRepository.findTopEmotionsByTeamAndDateRange(teamId, userId, startDate, endDate);
+        } else {
+            userEmotions = insightsRepository.findTopEmotionsByUser(userId);
+            teamEmotions = insightsRepository.findTopEmotionsByTeam(teamId, userId);
+        }
+
+        List<EmotionInsightDTO> userEmotionInsights = userEmotions.stream()
+                .map(emotion -> new EmotionInsightDTO(
+                        (Integer) emotion[0],
+                        (String) emotion[1],
+                        (Long) emotion[2],
+                        0L))
+                .collect(Collectors.toList());
+
+        List<EmotionInsightDTO> teamEmotionInsights = teamEmotions.stream()
+                .map(emotion -> new EmotionInsightDTO(
+                        (Integer) emotion[0],
+                        (String) emotion[1],
+                        0L,
+                        (Long) emotion[2]))
+                .collect(Collectors.toList());
+
+        return mergeUserAndTeamEmotionInsights(userEmotionInsights, teamEmotionInsights);
+    }
+
+    private List<EmotionInsightDTO> mergeUserAndTeamEmotionInsights(List<EmotionInsightDTO> userEmotionInsights, List<EmotionInsightDTO> teamEmotionInsights) {
+        Map<Integer, EmotionInsightDTO> merged = new HashMap<>();
+
+        for (EmotionInsightDTO userInsight : userEmotionInsights) {
+            merged.put(userInsight.getEmotionId(), userInsight);
+        }
+
+        for (EmotionInsightDTO teamInsight : teamEmotionInsights) {
+            merged.merge(teamInsight.getEmotionId(), teamInsight, (userDto, teamDto) -> new EmotionInsightDTO(
+                    userDto.getEmotionId(),
+                    userDto.getEmotionName(),
+                    userDto.getUserCount(),
+                    teamDto.getTeamCount()
+            ));
+        }
+
+        return merged.values().stream()
+                .sorted(Comparator.comparingLong((EmotionInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
+                .limit(10)
                 .collect(Collectors.toList());
     }
 

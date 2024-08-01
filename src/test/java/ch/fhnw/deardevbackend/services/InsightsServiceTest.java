@@ -267,9 +267,6 @@ public class InsightsServiceTest {
 
         InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
 
-        System.out.println("Happiness Insights size: " + result.getHappinessInsights().size());
-        result.getHappinessInsights().forEach(h -> System.out.println(h.getDay() + ": " + h.getUserAverage() + ", " + h.getTeamAverage()));
-
         assertNotNull(result);
         assertEquals(3, result.getHappinessInsights().size());
 

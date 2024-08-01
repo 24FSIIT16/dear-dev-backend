@@ -82,14 +82,48 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
     List<Object[]> findTopWorkKindsByTeam(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
 
 
+    // Fetch most voted emotions for the user with date range
+    @Query("SELECT e.emotionId, em.name, COUNT(e.emotionId) as userCount " +
+            "FROM EmotionSurvey e " +
+            "JOIN Emotion em ON e.emotionId = em.id " +
+            "WHERE e.userId = :userId " +
+            "AND e.submitted BETWEEN :startDate AND :endDate " +
+            "GROUP BY e.emotionId, em.name " +
+            "ORDER BY userCount DESC")
+    List<Object[]> findTopEmotionsByUserAndDateRange(@Param("userId") Integer userId,
+                                                     @Param("startDate") LocalDateTime startDate,
+                                                     @Param("endDate") LocalDateTime endDate);
+
+    // Fetch most voted emotions for the team with date range
+    @Query("SELECT e.emotionId, em.name, COUNT(e.emotionId) as teamCount " +
+            "FROM EmotionSurvey e " +
+            "JOIN Emotion em ON e.emotionId = em.id " +
+            "WHERE e.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
+            "AND e.userId != :userId " +
+            "AND e.submitted BETWEEN :startDate AND :endDate " +
+            "GROUP BY e.emotionId, em.name " +
+            "ORDER BY teamCount DESC")
+    List<Object[]> findTopEmotionsByTeamAndDateRange(@Param("teamId") Integer teamId,
+                                                     @Param("userId") Integer userId,
+                                                     @Param("startDate") LocalDateTime startDate,
+                                                     @Param("endDate") LocalDateTime endDate);
+
+    // Fetch most voted emotions for the user without date range
+    @Query("SELECT e.emotionId, em.name, COUNT(e.emotionId) as userCount " +
+            "FROM EmotionSurvey e " +
+            "JOIN Emotion em ON e.emotionId = em.id " +
+            "WHERE e.userId = :userId " +
+            "GROUP BY e.emotionId, em.name " +
+            "ORDER BY userCount DESC")
+    List<Object[]> findTopEmotionsByUser(@Param("userId") Integer userId);
+
+    // Fetch most voted emotions for the team without date range
+    @Query("SELECT e.emotionId, em.name, COUNT(e.emotionId) as teamCount " +
+            "FROM EmotionSurvey e " +
+            "JOIN Emotion em ON e.emotionId = em.id " +
+            "WHERE e.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
+            "AND e.userId != :userId " +
+            "GROUP BY e.emotionId, em.name " +
+            "ORDER BY teamCount DESC")
+    List<Object[]> findTopEmotionsByTeam(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
 }
-
-//
-//    @Query("SELECT wk.teamId, ws.workKindId, wk.name as workKindName, AVG(ws.score) as averageHappiness, COUNT(ws.workKindId) as totalCount " +
-//            "FROM WorkKindSurvey ws " +
-//            "JOIN WorkKind wk ON ws.workKindId = wk.id " +
-//            "WHERE ws.userId = :userId " +
-//            "GROUP BY wk.teamId, ws.workKindId, wk.name " +
-//            "ORDER BY wk.teamId, ws.workKindId")
-//    List<Object[]> findWorkKindHappinessByUserId(Integer userId);
-
