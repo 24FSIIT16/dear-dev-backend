@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 
@@ -24,7 +25,6 @@ public class InsightsService {
 
     private final InsightsRepository insightsRepository;
     private final HappinessSurveyRepository happinessSurveyRepository;
-    private final TeamMemberRepository teamMemberRepository;
     private final HappinessInsightMapper happinessInsightMapper;
     private final WorkKindInsightMapper workKindInsightMapper;
 
@@ -36,7 +36,6 @@ public class InsightsService {
                            WorkKindInsightMapper workKindInsightMapper) {
         this.insightsRepository = insightsRepository;
         this.happinessSurveyRepository = happinessSurveyRepository;
-        this.teamMemberRepository = teamMemberRepository;
         this.happinessInsightMapper = happinessInsightMapper;
         this.workKindInsightMapper = workKindInsightMapper;
     }
@@ -44,7 +43,7 @@ public class InsightsService {
     @Transactional(readOnly = true)
     public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
         List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
-        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserId(userId);
+        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserAndTeam(userId, teamId, sprint);
 
         double userAverageHappiness = calculateAverageHappiness(happinessInsights, true);
         double teamAverageHappiness = calculateAverageHappiness(happinessInsights, false);
@@ -52,8 +51,15 @@ public class InsightsService {
         return new InsightDTO(happinessInsights, workKindInsights, userAverageHappiness, teamAverageHappiness);
     }
 
+
+    // Happiness insights
+
     @Transactional(readOnly = true)
     public List<HappinessInsightDTO> getHappinessInsightsByTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
+// later todo
+// LocalDateTime startDate = getSprintStartDate(sprint);
+// LocalDateTime endDate = getSprintEndDate(sprint);
+
         LocalDateTime startDate = null;
         LocalDateTime endDate = LocalDateTime.now();
 
@@ -111,28 +117,90 @@ public class InsightsService {
                 .orElse(0.0);
     }
 
-    // todo later asap structure is defined
-    private WorkKindInsightDTO findMatchingWorkKindInsight(HappinessInsightDTO happinessInsightDTO, List<WorkKindInsightDTO> workKindInsights) {
-        return workKindInsights.stream()
-                // .filter(workKindInsightDTO -> workKindInsightDTO.getTeamId().equals(happinessInsightDTO.getTeamId()))
-                .findFirst()
-                .orElse(null);
-    }
+    // Workkind insights
 
-
-    // todo remove
     @Transactional(readOnly = true)
-    public List<WorkKindInsightDTO> getWorkKindInsightsByUserId(@ValidateUserIdParam Integer userId) {
-        List<Object[]> results = insightsRepository.findWorkKindHappinessByUserId(userId);
+    public List<WorkKindInsightDTO> getWorkKindInsightsByUserAndTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
+    // later todo
+    // LocalDateTime startDate = getSprintStartDate(sprint);
+    // LocalDateTime endDate = getSprintEndDate(sprint);
 
-        return results.stream()
-                .map(row -> workKindInsightMapper.toDTO(
-                        (Integer) row[0],
-                        (Integer) row[1],
-                        (String) row[2],
-                        (Double) row[3],
-                        (Long) row[4]
-                ))
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = LocalDateTime.now();
+
+
+        switch (sprint.toLowerCase()) {
+            case "current":
+                startDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "last":
+                startDate = LocalDateTime.now().minusWeeks(6);
+                endDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "none":
+            default:
+                startDate = null;
+                endDate = null;
+                break;
+        }
+
+
+        List<Object[]> userWorkKinds;
+        List<Object[]> teamWorkKinds;
+
+        if (startDate != null) {
+            userWorkKinds = insightsRepository.findTopWorkKindsByUserAndDateRange(userId, startDate, endDate);
+            teamWorkKinds = insightsRepository.findTopWorkKindsByTeamAndDateRange(teamId, userId, startDate, endDate);
+        } else {
+            userWorkKinds = insightsRepository.findTopWorkKindsByUser(userId);
+            teamWorkKinds = insightsRepository.findTopWorkKindsByTeam(teamId, userId);
+        }
+
+        List<WorkKindInsightDTO> userWorkKindInsights = userWorkKinds.stream()
+                .map(workKind -> workKindInsightMapper.toUserDTO(
+                        (Integer) workKind[0],
+                        (String) workKind[1],
+                        (Double) workKind[2],
+                        (Long) workKind[3]))
                 .collect(Collectors.toList());
+
+        List<WorkKindInsightDTO> teamWorkKindInsights = teamWorkKinds.stream()
+                .map(workKind -> workKindInsightMapper.toTeamDTO(
+                        (Integer) workKind[0],
+                        (String) workKind[1],
+                        (Double) workKind[2],
+                        (Long) workKind[3]))
+                .collect(Collectors.toList());
+
+        // Merge user and team insights into a single list
+        return mergeUserAndTeamWorkKindInsights(userWorkKindInsights, teamWorkKindInsights);
     }
+
+    private List<WorkKindInsightDTO> mergeUserAndTeamWorkKindInsights(List<WorkKindInsightDTO> userWorkKindInsights, List<WorkKindInsightDTO> teamWorkKindInsights) {
+        Map<Integer, WorkKindInsightDTO> merged = new HashMap<>();
+
+        for (WorkKindInsightDTO userInsight : userWorkKindInsights) {
+            merged.put(userInsight.getWorkKindId(), userInsight);
+        }
+
+        for (WorkKindInsightDTO teamInsight : teamWorkKindInsights) {
+            merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> {
+                return new WorkKindInsightDTO(
+                        userDto.getWorkKindId(),
+                        userDto.getWorkKindName(),
+                        userDto.getUserAverage() != null ? userDto.getUserAverage() : 0.0,
+                        userDto.getUserCount() != null ? userDto.getUserCount() : 0L,
+                        teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0.0,
+                        teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
+                );
+            });
+        }
+
+        return merged.values().stream()
+                .sorted(Comparator.comparingLong((WorkKindInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+    }
+
 }

@@ -9,10 +9,23 @@ import org.mapstruct.factory.Mappers;
 public interface WorkKindInsightMapper {
     WorkKindInsightMapper INSTANCE = Mappers.getMapper(WorkKindInsightMapper.class);
 
-    @Mapping(source = "teamId", target = "teamId")
     @Mapping(source = "workKindId", target = "workKindId")
     @Mapping(source = "workKindName", target = "workKindName")
-    @Mapping(source = "averageHappiness", target = "averageHappiness")
-    @Mapping(source = "totalCount", target = "totalCount")
-    WorkKindInsightDTO toDTO(Integer teamId, Integer workKindId, String workKindName, Double averageHappiness, Long totalCount);
+    @Mapping(source = "userAverage", target = "userAverage")
+    @Mapping(source = "userCount", target = "userCount")
+    @Mapping(source = "teamAverage", target = "teamAverage")
+    @Mapping(source = "teamCount", target = "teamCount")
+    WorkKindInsightDTO toDTO(Integer workKindId, String workKindName, Double userAverage, Long userCount, Double teamAverage, Long teamCount);
+
+    @Mapping(source = "workKindId", target = "workKindId")
+    @Mapping(source = "workKindName", target = "workKindName")
+    @Mapping(source = "userAverage", target = "userAverage")
+    @Mapping(source = "userCount", target = "userCount")
+    WorkKindInsightDTO toUserDTO(Integer workKindId, String workKindName, Double userAverage, Long userCount);
+
+    @Mapping(source = "workKindId", target = "workKindId")
+    @Mapping(source = "workKindName", target = "workKindName")
+    @Mapping(source = "teamAverage", target = "teamAverage")
+    @Mapping(source = "teamCount", target = "teamCount")
+    WorkKindInsightDTO toTeamDTO(Integer workKindId, String workKindName, Double teamAverage, Long teamCount);
 }

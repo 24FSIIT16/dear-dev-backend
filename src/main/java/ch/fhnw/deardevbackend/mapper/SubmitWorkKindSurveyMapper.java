@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
 public interface SubmitWorkKindSurveyMapper {
     SubmitWorkKindSurveyMapper INSTANCE = Mappers.getMapper(SubmitWorkKindSurveyMapper.class);
 
-    @Mapping(target = "submitted", expression = "java(java.time.OffsetDateTime.now().toString())")
+    @Mapping(target = "submitted", expression = "java(java.time.LocalDateTime.now())")
    WorkKindSurvey toWorkKindSurvey(SubmitWorkKindSurveyDTO dto);
 }
 
