@@ -275,4 +275,5 @@ public class InsightsServiceTest {
         verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
     }
 
+    // todo add emotion tests
 }
