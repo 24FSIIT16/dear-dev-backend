@@ -43,7 +43,8 @@ public class InsightsServiceTest {
     private List<Object[]> userAverages;
     private List<Object[]> teamAverages;
 
-    private List<Object[]> workKindHappinessData;
+    private List<Object[]> userWorkKinds;
+    private List<Object[]> teamWorkKinds;
     private WorkKindInsightDTO workKindInsightDTO1;
     private WorkKindInsightDTO workKindInsightDTO2;
     private WorkKindInsightDTO workKindInsightDTO3;
@@ -64,17 +65,19 @@ public class InsightsServiceTest {
                 new Object[]{"2024-07-29", 3.0}
         );
 
-        workKindHappinessData = Arrays.asList(
-                new Object[]{1, 1, "Development", 4.5, 10L},
-                new Object[]{1, 2, "Testing", 3.5, 5L},
-                new Object[]{2, 1, "Development", 4.0, 8L},
-                new Object[]{2, 2, "Testing", 3.0, 6L}
+        userWorkKinds = Arrays.asList(
+                new Object[]{1, "Development", 4.5, 10L},
+                new Object[]{2, "Testing", 3.5, 5L}
+        );
+        teamWorkKinds = Arrays.asList(
+                new Object[]{1, "Development", 4.0, 8L},
+                new Object[]{2, "Testing", 3.0, 6L}
         );
 
-        workKindInsightDTO1 = new WorkKindInsightDTO(1, 1, "Development", 4.5, 10L);
-        workKindInsightDTO2 = new WorkKindInsightDTO(1, 2, "Testing", 3.5, 5L);
-        workKindInsightDTO3 = new WorkKindInsightDTO(2, 1, "Development", 4.0, 8L);
-        workKindInsightDTO4 = new WorkKindInsightDTO(2, 2, "Testing", 3.0, 6L);
+        workKindInsightDTO1 = new WorkKindInsightDTO(1, "Development", 4.5, 10L, 0.0, 0L);
+        workKindInsightDTO2 = new WorkKindInsightDTO(2, "Testing", 3.5, 5L, 0.0, 0L);
+        workKindInsightDTO3 = new WorkKindInsightDTO(1, "Development", 0.0, 0L, 4.0, 8L);
+        workKindInsightDTO4 = new WorkKindInsightDTO(2, "Testing", 0.0, 0L, 3.0, 6L);
     }
 
     @Test
@@ -88,11 +91,12 @@ public class InsightsServiceTest {
         when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
         when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
 
-        when(insightsRepository.findWorkKindHappinessByUserId(userId)).thenReturn(workKindHappinessData);
-        when(workKindInsightMapper.toDTO(1, 1, "Development", 4.5, 10L)).thenReturn(workKindInsightDTO1);
-        when(workKindInsightMapper.toDTO(1, 2, "Testing", 3.5, 5L)).thenReturn(workKindInsightDTO2);
-        when(workKindInsightMapper.toDTO(2, 1, "Development", 4.0, 8L)).thenReturn(workKindInsightDTO3);
-        when(workKindInsightMapper.toDTO(2, 2, "Testing", 3.0, 6L)).thenReturn(workKindInsightDTO4);
+        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), any(), any())).thenReturn(userWorkKinds);
+        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), eq(userId), any(), any())).thenReturn(teamWorkKinds);
+        when(workKindInsightMapper.toUserDTO(1, "Development", 4.5, 10L)).thenReturn(workKindInsightDTO1);
+        when(workKindInsightMapper.toUserDTO(2, "Testing", 3.5, 5L)).thenReturn(workKindInsightDTO2);
+        when(workKindInsightMapper.toTeamDTO(1, "Development", 4.0, 8L)).thenReturn(workKindInsightDTO3);
+        when(workKindInsightMapper.toTeamDTO(2, "Testing", 3.0, 6L)).thenReturn(workKindInsightDTO4);
 
         InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
 
@@ -100,15 +104,18 @@ public class InsightsServiceTest {
         assertNotNull(result.getHappinessInsights());
         assertNotNull(result.getWorkKindInsights());
         assertEquals(3, result.getHappinessInsights().size());
-        assertEquals(4, result.getWorkKindInsights().size());
+        assertEquals(2, result.getWorkKindInsights().size());
 
         verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
         verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any());
         verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
 
-        verify(insightsRepository, times(1)).findWorkKindHappinessByUserId(userId);
-        verify(workKindInsightMapper, times(4)).toDTO(anyInt(), anyInt(), anyString(), anyDouble(), anyLong());
+        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), eq(userId), any(), any());
+        verify(workKindInsightMapper, times(2)).toUserDTO(anyInt(), anyString(), anyDouble(), anyLong());
+        verify(workKindInsightMapper, times(2)).toTeamDTO(anyInt(), anyString(), anyDouble(), anyLong());
     }
+
 
     @Test
     void getHappinessInsightsByTeam_success() {
@@ -142,6 +149,6 @@ public class InsightsServiceTest {
         verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any());
         verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
     }
-
-
 }
+
+
