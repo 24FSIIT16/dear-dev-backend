@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 
@@ -105,6 +102,7 @@ public class InsightsService {
                     double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
                     return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
                 })
+                .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
                 .collect(Collectors.toList());
 
@@ -181,10 +179,13 @@ public class InsightsService {
         Map<Integer, WorkKindInsightDTO> merged = new HashMap<>();
 
         for (WorkKindInsightDTO userInsight : userWorkKindInsights) {
-            merged.put(userInsight.getWorkKindId(), userInsight);
+            if (userInsight != null) {
+                merged.put(userInsight.getWorkKindId(), userInsight);
+            }
         }
 
         for (WorkKindInsightDTO teamInsight : teamWorkKindInsights) {
+            if (teamInsight != null) {
             merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> {
                 return new WorkKindInsightDTO(
                         userDto.getWorkKindId(),
@@ -195,13 +196,12 @@ public class InsightsService {
                         teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
                 );
             });
-        }
+        }}
 
         return merged.values().stream()
                 .sorted(Comparator.comparingLong((WorkKindInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
                 .limit(5)
                 .collect(Collectors.toList());
-
     }
 
 }

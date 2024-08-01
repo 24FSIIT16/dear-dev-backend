@@ -1,7 +1,6 @@
 package ch.fhnw.deardevbackend.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
@@ -19,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,7 +81,7 @@ public class InsightsServiceTest {
     }
 
     @Test
-    void getInsightsByTeamAndSprint_success() {
+    void getInsightsByTeamAndSprint() {
         Integer teamId = 1;
         String sprint = "current";
 
@@ -118,7 +118,7 @@ public class InsightsServiceTest {
 
 
     @Test
-    void getHappinessInsightsByTeam_success() {
+    void getHappinessInsightsByTeam() {
         Integer teamId = 1;
         String sprint = "current";
 
@@ -149,6 +149,133 @@ public class InsightsServiceTest {
         verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any());
         verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
     }
+
+    @Test
+    void getInsightsByTeamAndSprint_noData() {
+        Integer teamId = 1;
+        String sprint = "current";
+
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
+        when(insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any())).thenReturn(Collections.emptyList());
+        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
+        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), eq(userId), any(), any())).thenReturn(Collections.emptyList());
+
+        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
+
+        assertNotNull(result);
+        assertTrue(result.getHappinessInsights().isEmpty());
+        assertTrue(result.getWorkKindInsights().isEmpty());
+
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), eq(userId), any(), any());
+    }
+
+    @Test
+    void getInsightsByTeamAndSprint_multipleTeams() {
+        Integer teamId1 = 1;
+        Integer teamId2 = 2;
+        String sprint = "current";
+
+        List<Object[]> userAveragesTeam1 = Arrays.asList(
+                new Object[]{"2024-07-27", 5.0},
+                new Object[]{"2024-07-28", 5.0},
+                new Object[]{"2024-07-29", 6.0}
+        );
+
+        List<Object[]> teamAveragesTeam1 = Arrays.asList(
+                new Object[]{"2024-07-27", 4.0},
+                new Object[]{"2024-07-28", 2.0},
+                new Object[]{"2024-07-29", 3.0}
+        );
+
+        List<Object[]> userAveragesTeam2 = Arrays.asList(
+                new Object[]{"2024-07-27", 6.0},
+                new Object[]{"2024-07-28", 7.0},
+                new Object[]{"2024-07-29", 5.5}
+        );
+
+        List<Object[]> teamAveragesTeam2 = Arrays.asList(
+                new Object[]{"2024-07-27", 5.5},
+                new Object[]{"2024-07-28", 6.0},
+                new Object[]{"2024-07-29", 4.0}
+        );
+
+        // Setup mocks for team 1
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
+                .thenReturn(userAveragesTeam1);
+        when(insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId1), eq(userId), any(), any()))
+                .thenReturn(teamAveragesTeam1);
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
+        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
+        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
+
+        // Execute the service method for team 1
+        InsightDTO resultTeam1 = insightsService.getInsightsByTeamAndSprint(userId, teamId1, sprint);
+
+        // Verify the results for team 1
+        assertNotNull(resultTeam1);
+        assertEquals(3, resultTeam1.getHappinessInsights().size());
+
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId1), eq(userId), any(), any());
+        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
+
+        // Reset mocks for team 2
+        reset(happinessSurveyRepository, insightsRepository, happinessInsightMapper);
+
+        // Setup mocks for team 2
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
+                .thenReturn(userAveragesTeam2);
+        when(insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId2), eq(userId), any(), any()))
+                .thenReturn(teamAveragesTeam2);
+        when(happinessInsightMapper.toDTO("2024-07-27", 6.0, 5.5))
+                .thenReturn(new HappinessInsightDTO("2024-07-27", 6.0, 5.5));
+        when(happinessInsightMapper.toDTO("2024-07-28", 7.0, 6.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-28", 7.0, 6.0));
+        when(happinessInsightMapper.toDTO("2024-07-29", 5.5, 4.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-29", 5.5, 4.0));
+
+        // Execute the service method for team 2
+        InsightDTO resultTeam2 = insightsService.getInsightsByTeamAndSprint(userId, teamId2, sprint);
+
+        // Verify the results for team 2
+        assertNotNull(resultTeam2);
+        assertEquals(3, resultTeam2.getHappinessInsights().size());
+
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId2), eq(userId), any(), any());
+        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
+    }
+
+
+    @Test
+    void getInsightsByTeamAndSprint_emptyTeamInsights() {
+        Integer teamId = 1;
+        String sprint = "current";
+
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(userAverages);
+        when(insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any())).thenReturn(teamAverages);
+
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
+        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
+        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
+
+        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
+
+        System.out.println("Happiness Insights size: " + result.getHappinessInsights().size());
+        result.getHappinessInsights().forEach(h -> System.out.println(h.getDay() + ": " + h.getUserAverage() + ", " + h.getTeamAverage()));
+
+        assertNotNull(result);
+        assertEquals(3, result.getHappinessInsights().size());
+
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesExcludingUserAndDateRange(eq(teamId), eq(userId), any(), any());
+        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
+    }
+
 }
-
-
