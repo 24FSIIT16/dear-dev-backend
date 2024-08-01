@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-import ch.fhnw.deardevbackend.dto.HappinessInsightDTO;
-import ch.fhnw.deardevbackend.dto.InsightDTO;
-import ch.fhnw.deardevbackend.dto.WorkKindInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.InsightsRepository;

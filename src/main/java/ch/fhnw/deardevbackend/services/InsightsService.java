@@ -1,7 +1,9 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
-import ch.fhnw.deardevbackend.dto.*;
+import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.*;

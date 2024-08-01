@@ -1,6 +1,6 @@
 package ch.fhnw.deardevbackend.mapper;
 
-import ch.fhnw.deardevbackend.dto.WorkKindInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

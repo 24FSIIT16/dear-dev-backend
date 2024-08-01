@@ -1,4 +1,4 @@
-package ch.fhnw.deardevbackend.dto;
+package ch.fhnw.deardevbackend.dto.insights;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package ch.fhnw.deardevbackend.controller;
 
-import ch.fhnw.deardevbackend.dto.*;
+import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
 import ch.fhnw.deardevbackend.services.InsightsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
