@@ -10,4 +10,6 @@ import java.util.List;
 public class InsightDTO {
     private List<HappinessInsightDTO> happinessInsights;
     private List<WorkKindInsightDTO> workKindInsights;
+    private double userAverageHappiness;
+    private double teamAverageHappiness;
 }

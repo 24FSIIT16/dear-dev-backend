@@ -44,7 +44,10 @@ public class InsightsService {
         List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
         List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserId(userId);
 
-        return new InsightDTO(happinessInsights, workKindInsights);
+        double userAverageHappiness = calculateAverageHappiness(happinessInsights, true);
+        double teamAverageHappiness = calculateAverageHappiness(happinessInsights, false);
+
+        return new InsightDTO(happinessInsights, workKindInsights, userAverageHappiness, teamAverageHappiness);
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +100,13 @@ public class InsightsService {
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
                 .collect(Collectors.toList());
 
+    }
+
+    private double calculateAverageHappiness(List<HappinessInsightDTO> insights, boolean isUser) {
+        return insights.stream()
+                .mapToDouble(insight -> isUser ? insight.getUserAverage() : insight.getTeamAverage())
+                .average()
+                .orElse(0.0);
     }
 
     // todo later asap structure is defined
