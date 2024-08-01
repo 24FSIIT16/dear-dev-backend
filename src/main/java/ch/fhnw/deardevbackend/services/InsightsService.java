@@ -176,6 +176,7 @@ public class InsightsService {
         return mergeUserAndTeamWorkKindInsights(userWorkKindInsights, teamWorkKindInsights);
     }
 
+    // Top 5 work kinds by user and team
     private List<WorkKindInsightDTO> mergeUserAndTeamWorkKindInsights(List<WorkKindInsightDTO> userWorkKindInsights, List<WorkKindInsightDTO> teamWorkKindInsights) {
         Map<Integer, WorkKindInsightDTO> merged = new HashMap<>();
 
@@ -198,7 +199,7 @@ public class InsightsService {
 
         return merged.values().stream()
                 .sorted(Comparator.comparingLong((WorkKindInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
-                .limit(10)
+                .limit(5)
                 .collect(Collectors.toList());
 
     }

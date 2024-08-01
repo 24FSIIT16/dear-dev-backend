@@ -124,4 +124,16 @@ INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VA
 INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-07-16 13:30:00 +00:00', 7, 8);
 INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100001, '2024-07-17 14:00:00 +00:00', 9, 9);
 INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100002, '2024-07-18 14:30:00 +00:00', 8, 10);
-
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-08-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-08-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-07-01 12:54:10.518000 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-05-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-05-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (2, '2024-08-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100001, '2024-08-03 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100001, '2024-04-01 12:54:10.518398 +00:00', 10, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100001, '2024-05-01 12:54:10.518398 +00:00', 5, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100001, '2024-08-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100002, '2024-04-01 12:54:10.518398 +00:00', 20, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100002, '2024-08-03 12:54:10.518398 +00:00', 13, 5);
+INSERT INTO public.work_kind_survey (user_id, submitted, score, work_kind_id) VALUES (100002, '2024-05-01 12:54:10.518398 +00:00', 20, 5);
