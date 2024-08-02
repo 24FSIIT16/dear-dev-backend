@@ -2,7 +2,7 @@ package ch.fhnw.deardevbackend.mapper;
 
 
 
-import ch.fhnw.deardevbackend.dto.HappinessInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

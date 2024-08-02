@@ -11,7 +11,7 @@ import org.mapstruct.factory.Mappers;
 public interface SubmitEmotionSurveyMapper {
     SubmitEmotionSurveyMapper INSTANCE = Mappers.getMapper(SubmitEmotionSurveyMapper.class);
 
-    @Mapping(target = "submitted", expression = "java(java.time.OffsetDateTime.now().toString())")
+    @Mapping(target = "submitted", expression = "java(java.time.LocalDateTime.now())")
     EmotionSurvey toEmotionSurvey(SubmitEmotionSurveyDTO dto);
 }
 
