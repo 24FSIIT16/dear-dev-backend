@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - apps_network
+      - yappi_network
 
   yappi_backend:
     build:
