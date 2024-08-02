@@ -1,10 +1,7 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
-import ch.fhnw.deardevbackend.dto.insights.EmotionInsightDTO;
-import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
-import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
-import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
+import ch.fhnw.deardevbackend.dto.insights.*;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.*;
@@ -23,17 +20,19 @@ public class InsightsService {
 
     private final InsightsRepository insightsRepository;
     private final HappinessSurveyRepository happinessSurveyRepository;
+    private final WorkKindSurveyRepository workKindSurveyRepository;
     private final HappinessInsightMapper happinessInsightMapper;
     private final WorkKindInsightMapper workKindInsightMapper;
 
 
     public InsightsService(InsightsRepository insightsRepository,
                            HappinessSurveyRepository happinessSurveyRepository,
-                           TeamMemberRepository teamMemberRepository,
                            HappinessInsightMapper happinessInsightMapper,
-                           WorkKindInsightMapper workKindInsightMapper) {
+                           WorkKindInsightMapper workKindInsightMapper,
+                           WorkKindSurveyRepository workKindSurveyRepository) {
         this.insightsRepository = insightsRepository;
         this.happinessSurveyRepository = happinessSurveyRepository;
+        this.workKindSurveyRepository = workKindSurveyRepository;
         this.happinessInsightMapper = happinessInsightMapper;
         this.workKindInsightMapper = workKindInsightMapper;
     }
@@ -43,11 +42,13 @@ public class InsightsService {
         List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
         List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserAndTeam(userId, teamId, sprint);
         List<EmotionInsightDTO> emotionInsights = getEmotionInsightsByUserAndTeam(userId, teamId, sprint);
+        List<WorkKindCountPerDayInsightDTO> workKindCountPerDayInsights = getWorkKindCountPerDayInsights(userId, teamId, sprint);
+
 
         double userAverageHappiness = calculateAverageHappiness(happinessInsights, true);
         double teamAverageHappiness = calculateAverageHappiness(happinessInsights, false);
 
-        return new InsightDTO(happinessInsights, workKindInsights, emotionInsights, userAverageHappiness, teamAverageHappiness);
+        return new InsightDTO(happinessInsights, workKindInsights, emotionInsights, workKindCountPerDayInsights, userAverageHappiness, teamAverageHappiness);
     }
 
 
@@ -281,6 +282,74 @@ public class InsightsService {
                 .sorted(Comparator.comparingLong((EmotionInsightDTO dto) -> dto.getUserCount() != null ? dto.getUserCount() : 0L).reversed())
                 .limit(10)
                 .collect(Collectors.toList());
+    }
+
+    /////  Workkind count per day vs. average happiness
+
+    @Transactional(readOnly = true)
+    public List<WorkKindCountPerDayInsightDTO> getWorkKindCountPerDayInsights(Integer userId, Integer teamId, String sprint) {
+        // todo
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = LocalDateTime.now();
+
+        switch (sprint.toLowerCase()) {
+            case "current":
+                startDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "last":
+                startDate = LocalDateTime.now().minusWeeks(6);
+                endDate = LocalDateTime.now().minusWeeks(3);
+                break;
+            case "none":
+            default:
+                startDate = null;
+                endDate = null;
+                break;
+        }
+
+        List<Object[]> userResults = startDate != null
+                ? insightsRepository.findUserWorkKindCountAndHappinessByDateRange(userId, startDate, endDate)
+                : insightsRepository.findUserWorkKindCountAndHappiness(userId);
+
+        List<Object[]> teamResults = startDate != null
+                ? insightsRepository.findTeamWorkKindCountAndHappinessByDateRange(teamId, userId, startDate, endDate)
+                : insightsRepository.findTeamWorkKindCountAndHappiness(teamId, userId);
+
+        Map<Integer, List<Double>> userHappinessByWorkKindCount = new HashMap<>();
+        for (Object[] row : userResults) {
+            Integer workKindCount = ((Number) row[0]).intValue();
+            Double userAverageHappiness = ((Number) row[1]).doubleValue();
+
+            userHappinessByWorkKindCount.computeIfAbsent(workKindCount, k -> new ArrayList<>()).add(userAverageHappiness);
+        }
+
+        Map<Integer, List<Double>> teamHappinessByWorkKindCount = new HashMap<>();
+        for (Object[] row : teamResults) {
+            Integer workKindCount = ((Number) row[0]).intValue();
+            Double teamAverageHappiness = ((Number) row[1]).doubleValue();
+
+            teamHappinessByWorkKindCount.computeIfAbsent(workKindCount, k -> new ArrayList<>()).add(teamAverageHappiness);
+        }
+
+        // Calculate averages for each work kind count
+        List<WorkKindCountPerDayInsightDTO> insights = new ArrayList<>();
+        int maxWorkKindCount = getMaxWorkKindCountForTeam(teamId);
+
+        for (int i = 1; i <= maxWorkKindCount; i++) {
+            double userAverageHappiness = userHappinessByWorkKindCount.containsKey(i) ?
+                    userHappinessByWorkKindCount.get(i).stream().mapToDouble(Double::doubleValue).average().orElse(0.0) : 0.0;
+
+            double teamAverageHappiness = teamHappinessByWorkKindCount.containsKey(i) ?
+                    teamHappinessByWorkKindCount.get(i).stream().mapToDouble(Double::doubleValue).average().orElse(0.0) : 0.0;
+
+            insights.add(new WorkKindCountPerDayInsightDTO(i, userAverageHappiness, teamAverageHappiness));
+        }
+
+        return insights;
+    }
+
+    private int getMaxWorkKindCountForTeam(Integer teamId) {
+        return workKindSurveyRepository.findDistinctWorkKindCountByTeamId(teamId);
     }
 
 }

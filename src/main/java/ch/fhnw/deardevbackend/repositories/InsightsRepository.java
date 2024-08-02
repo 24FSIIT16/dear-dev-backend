@@ -126,4 +126,55 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "GROUP BY e.emotionId, em.name " +
             "ORDER BY teamCount DESC")
     List<Object[]> findTopEmotionsByTeam(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
+
+
+    // Fetch user work kind count and average happiness by day with date range
+    @Query("SELECT COUNT(DISTINCT wks.workKindId) AS workKindCount, AVG(hs.score) AS userAverageHappiness " +
+            "FROM WorkKindSurvey wks " +
+            "JOIN HappinessSurvey hs ON wks.userId = hs.userId " +
+            "AND CAST(wks.submitted AS DATE) = CAST(hs.submitted AS DATE) " +
+            "WHERE wks.userId = :userId " +
+            "AND wks.submitted BETWEEN :startDate AND :endDate " +
+            "GROUP BY CAST(wks.submitted AS DATE) " +
+            "ORDER BY workKindCount")
+    List<Object[]> findUserWorkKindCountAndHappinessByDateRange(@Param("userId") Integer userId,
+                                                                @Param("startDate") LocalDateTime startDate,
+                                                                @Param("endDate") LocalDateTime endDate);
+
+    // Fetch team work kind count and average happiness by day with date range
+    @Query("SELECT COUNT(DISTINCT wks.workKindId) AS workKindCount, AVG(hs.score) AS teamAverageHappiness " +
+            "FROM WorkKindSurvey wks " +
+            "JOIN HappinessSurvey hs ON wks.userId = hs.userId " +
+            "AND CAST(wks.submitted AS DATE) = CAST(hs.submitted AS DATE) " +
+            "WHERE wks.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
+            "AND wks.userId != :userId " +
+            "AND wks.submitted BETWEEN :startDate AND :endDate " +
+            "GROUP BY CAST(wks.submitted AS DATE) " +
+            "ORDER BY workKindCount")
+    List<Object[]> findTeamWorkKindCountAndHappinessByDateRange(@Param("teamId") Integer teamId,
+                                                                @Param("userId") Integer userId,
+                                                                @Param("startDate") LocalDateTime startDate,
+                                                                @Param("endDate") LocalDateTime endDate);
+
+    // Fetch user work kind count and average happiness by day without date range
+    @Query("SELECT COUNT(DISTINCT wks.workKindId) AS workKindCount, AVG(hs.score) AS userAverageHappiness " +
+            "FROM WorkKindSurvey wks " +
+            "JOIN HappinessSurvey hs ON wks.userId = hs.userId " +
+            "AND CAST(wks.submitted AS DATE) = CAST(hs.submitted AS DATE) " +
+            "WHERE wks.userId = :userId " +
+            "GROUP BY CAST(wks.submitted AS DATE) " +
+            "ORDER BY workKindCount")
+    List<Object[]> findUserWorkKindCountAndHappiness(@Param("userId") Integer userId);
+
+    // Fetch team work kind count and average happiness by day without date range
+    @Query("SELECT COUNT(DISTINCT wks.workKindId) AS workKindCount, AVG(hs.score) AS teamAverageHappiness " +
+            "FROM WorkKindSurvey wks " +
+            "JOIN HappinessSurvey hs ON wks.userId = hs.userId " +
+            "AND CAST(wks.submitted AS DATE) = CAST(hs.submitted AS DATE) " +
+            "WHERE wks.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
+            "AND wks.userId != :userId " +
+            "GROUP BY CAST(wks.submitted AS DATE) " +
+            "ORDER BY workKindCount")
+    List<Object[]> findTeamWorkKindCountAndHappiness(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
+
 }
