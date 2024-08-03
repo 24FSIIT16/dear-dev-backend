@@ -8,11 +8,10 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface SpringConfigMapper {
+public interface SprintConfigMapper {
 
-    SpringConfigMapper INSTANCE = Mappers.getMapper(SpringConfigMapper.class);
+    SprintConfigMapper INSTANCE = Mappers.getMapper(SprintConfigMapper.class);
 
-    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
     SprintConfig toEntity(CreateSprintDTO dto);

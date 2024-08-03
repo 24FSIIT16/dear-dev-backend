@@ -36,7 +36,7 @@ public class SprintConfig {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "created_by")
