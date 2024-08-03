@@ -11,8 +11,8 @@ VALUES (990, 100001, 998, 'ADMIN', true);
 INSERT INTO team_member (id, user_id, team_id, role, active)
 VALUES (999, 100002, 999, 'MEMBER', true);
 
-INSERT INTO team_config (id, work_kinds)
-VALUES (1, '{CODING,MEETING}');
+INSERT INTO team_config (id, happiness_survey, work_kind_survey, emotion_survey)
+VALUES (1, true, true, true);
 
 INSERT INTO work_kind (name)
 VALUES ('Coding'),
