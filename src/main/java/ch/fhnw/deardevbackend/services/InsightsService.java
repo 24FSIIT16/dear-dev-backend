@@ -66,11 +66,9 @@ public class InsightsService {
             userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
             teamAverages = insightsRepository.findTeamDailyAverages(teamId);
         } else {
-            Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
-            if (sprintConfigOptional.isEmpty()) {
-                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
-            }
-            SprintConfig sprintConfig = sprintConfigOptional.get();
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
+
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
 
@@ -87,9 +85,9 @@ public class InsightsService {
         return userAverages.stream()
                 .map(userAvg -> {
                     String day = userAvg[0].toString();
-                    Integer userAverage = ((Number) userAvg[1]).intValue();  // Convert user average to Integer
-                    Integer teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();  // Convert team average to Integer
-                    return happinessInsightMapper.toDTO(day, userAverage.doubleValue(), teamAverage.doubleValue());
+                    int userAverage = ((Number) userAvg[1]).intValue();  // Convert user average to Integer
+                    int teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();  // Convert team average to Integer
+                    return happinessInsightMapper.toDTO(day, (double) userAverage, (double) teamAverage);
                 })
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
@@ -114,12 +112,8 @@ public class InsightsService {
             userWorkKinds = insightsRepository.findTopWorkKindsByUser(userId, teamId);
             teamWorkKinds = insightsRepository.findTopWorkKindsByTeam(teamId);
         } else {
-            Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
-            if (sprintConfigOptional.isEmpty()) {
-                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
-            }
-
-            SprintConfig sprintConfig = sprintConfigOptional.get();
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
@@ -191,11 +185,8 @@ public class InsightsService {
             userEmotions = insightsRepository.findTopEmotionsByUser(userId);
             teamEmotions = insightsRepository.findTopEmotionsByTeam(teamId);
         } else {
-            Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
-            if (sprintConfigOptional.isEmpty()) {
-                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
-            }
-            SprintConfig sprintConfig = sprintConfigOptional.get();
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
@@ -256,12 +247,8 @@ public class InsightsService {
             workKindData = insightsRepository.findWorkKindCountPerDayForUserNoDateRange(userId);
             teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayNoDateRange(teamId);
         } else {
-            Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
-            if (sprintConfigOptional.isEmpty()) {
-                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
-            }
-
-            SprintConfig sprintConfig = sprintConfigOptional.get();
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
