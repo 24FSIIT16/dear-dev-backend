@@ -26,6 +26,12 @@ public class SprintConfigController {
         return sprintConfigService.getSprintsByCreatedBy(userId);
     }
 
+    @GetMapping("/{sprintId}")
+    public ResponseEntity<SprintConfig> getSprintById(@PathVariable Integer sprintId) {
+        SprintConfig sprintConfig = sprintConfigService.getSprintById(sprintId);
+        return ResponseEntity.ok().body(sprintConfig);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<SprintConfig> createSprint(@RequestBody CreateSprintDTO request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -37,5 +43,11 @@ public class SprintConfigController {
 
         SprintConfig createdSprint = sprintConfigService.createSprint(sprintConfig);
         return ResponseEntity.ok().body(createdSprint);
+    }
+
+    @PutMapping("/update/{sprintId}")
+    public ResponseEntity<SprintConfig> updateSprintConfig(@PathVariable Integer sprintId, @RequestBody CreateSprintDTO request) {
+        SprintConfig updatedSprint = sprintConfigService.updateSprint(sprintId, request);
+        return ResponseEntity.ok().body(updatedSprint);
     }
 }
