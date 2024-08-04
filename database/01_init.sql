@@ -81,6 +81,21 @@ CREATE TABLE team_config
     PRIMARY KEY (id)
 );
 
+CREATE TABLE sprint_config
+(
+    id          SERIAL,
+    sprint_name VARCHAR(32) NOT NULL,
+    sprint_goal VARCHAR(255),
+    team_id     INTEGER,
+    start_date  DATE        NOT NULL,
+    end_date    DATE        NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    created_by  INTEGER     NOT NULL,
+    active      BOOLEAN,
+
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE team_config_work_kinds
 (
     team_config_id INTEGER NOT NULL,

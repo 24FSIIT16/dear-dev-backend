@@ -11,8 +11,22 @@ VALUES (990, 100001, 998, 'ADMIN', true);
 INSERT INTO team_member (id, user_id, team_id, role, active)
 VALUES (999, 100002, 999, 'MEMBER', true);
 
+INSERT INTO team_config (id, happiness_survey, work_kind_survey, emotion_survey)
+VALUES (1, true, true, true);
 
+INSERT INTO work_kind (name)
+VALUES ('Coding'),
+       ('Meeting'),
+       ('Daily Standup'),
+       ('Planning'),
+       ('Review'),
+       ('Retrospective');
 
+INSERT INTO work_kind (name, team_id)
+VALUES ('Team Huddle', 998),
+       ('Bowling', 998),
+       ('Team Huddle', 999),
+       ('Bowling', 999);
 
 INSERT INTO emotion (name)
 VALUES ('Angry'),
