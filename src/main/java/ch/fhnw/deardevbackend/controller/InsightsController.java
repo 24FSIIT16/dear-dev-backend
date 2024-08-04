@@ -17,11 +17,11 @@ public class InsightsController {
     private InsightsService insightsService;
 
 
-    @GetMapping("/{userId}/team/{teamId}/sprint/{sprint}")
+    @GetMapping("/{userId}/team/{teamId}/sprint/{sprintId}")
     public ResponseEntity<InsightDTO> getInsightsByTeamAndSprint(@PathVariable Integer userId,
                                                                  @PathVariable Integer teamId,
-                                                                 @PathVariable String sprint) {
-        InsightDTO insights = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
+                                                                 @PathVariable Integer sprintId) {
+        InsightDTO insights = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprintId);
         return ResponseEntity.ok(insights);
     }
 
