@@ -35,7 +35,6 @@ public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey
 
 
 
-    // Find average happiness score for a user on a specific day
     @Query("SELECT AVG(h.score) FROM HappinessSurvey h WHERE h.userId = :userId AND DATE(h.submitted) = :date")
     Double findAverageScoreByUserIdAndDate(Integer userId, LocalDate date);
 
