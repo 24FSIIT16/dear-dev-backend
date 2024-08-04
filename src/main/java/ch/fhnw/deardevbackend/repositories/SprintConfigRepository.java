@@ -4,9 +4,13 @@ import ch.fhnw.deardevbackend.entities.SprintConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface SprintConfigRepository extends JpaRepository<SprintConfig, Integer> {
+
     List<SprintConfig> findAllByCreatedBy(Integer createdBy);
+
+    List<SprintConfig> findByCreatedByAndActiveFalseAndStartDateAfter(Integer createdBy, LocalDate startDate);
 }
