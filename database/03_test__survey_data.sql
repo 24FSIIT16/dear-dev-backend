@@ -1,4 +1,9 @@
 -- Survey Data (Teams & Current User)
+
+INSERT INTO public.team_member (user_id, team_id, role, active) VALUES (100001, 2, 'MEMBER', true);
+INSERT INTO public.team_member (user_id, team_id, role, active) VALUES (100002, 2, 'MEMBER', true);
+
+
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-05-24 12:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-05-24 15:00:00.000000 +00:00', 14);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-05-25 12:00:00.000000 +00:00', 8);
@@ -11,10 +16,7 @@ INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, 
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-05-30 18:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-08 17:00:00.000000 +00:00', 8);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-09 12:00:00.000000 +00:00', 14);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-10 12:00:00.000000 +00:00', 20);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-11 12:00:00.000000 +00:00', 2);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-11 15:00:00.000000 +00:00', 8);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-12 12:00:00.000000 +00:00', 14);
+
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-13 12:00:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-14 12:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-14 17:00:00.000000 +00:00', 8);
@@ -26,13 +28,7 @@ INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, 
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-19 12:00:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 12:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 12:00:00.000000 +00:00', 2);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 15:00:00.000000 +00:00', 8);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-20 15:00:00.000000 +00:00', 8);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-21 12:00:00.000000 +00:00', 2);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-21 12:00:00.000000 +00:00', 14);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-22 12:00:00.000000 +00:00', 20);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-18 12:00:00.000000 +00:00', 14);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-22 12:00:00.000000 +00:00', 8);
+
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-23 12:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-23 18:00:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-23 12:00:00.000000 +00:00', 14);
@@ -49,7 +45,6 @@ INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, 
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-27 12:00:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-28 12:00:00.000000 +00:00', 2);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100001, '2024-06-28 12:00:00.000000 +00:00', 12);
-INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100001, '2024-06-28 12:00:00.000000 +00:00', 17);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-06-28 12:00:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100002, '2024-07-31 19:28:42.118978 +00:00', 1);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (100001, '2024-07-31 19:28:42.118978 +00:00', 4);
@@ -237,5 +232,7 @@ INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (1, '2024
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (1, '2024-07-08 09:30:00.000000 +00:00', 20);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (1, '2024-07-08 09:30:00.000000 +00:00', 15);
 INSERT INTO public.happiness_survey (user_id, submitted, score) VALUES (1, '2024-08-04 18:32:55.910000 +00:00', 3);
+
+
 
 

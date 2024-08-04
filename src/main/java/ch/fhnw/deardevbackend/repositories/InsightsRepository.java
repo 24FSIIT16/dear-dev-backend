@@ -13,62 +13,64 @@ import java.util.List;
 @Repository
 public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integer> {
 
-    // overall happiness - no daterange
+    // team overall happiness - no daterange
     @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
             "FROM HappinessSurvey " +
             "WHERE userId IN (SELECT userId FROM TeamMember WHERE teamId = ?1) " +
-            "AND userId != ?2 " +
             "GROUP BY day")
-    List<Object[]> findTeamDailyAveragesExcludingUser(Integer teamId, Integer userId);
+    List<Object[]> findTeamDailyAverages(Integer teamId);
 
-    // overall happiness - with daterange
+    // team overall happiness - with daterange
     @Query("SELECT CAST(h.submitted AS DATE) as day, AVG(h.score) as average " +
             "FROM HappinessSurvey h " +
             "WHERE h.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
-            "AND h.userId != :userId " +
             "AND h.submitted BETWEEN :startDate AND :endDate " +
             "GROUP BY day")
-    List<Object[]> findTeamDailyAveragesExcludingUserAndDateRange(@Param("teamId") Integer teamId,
-                                                                  @Param("userId") Integer userId,
-                                                                  @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<Object[]> findTeamDailyAveragesAndDateRange(@Param("teamId") Integer teamId,
+                                                     @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
-    // work kinds for a user with date range
+
+    // work kinds for a user with date range within a specific team
     @Query("SELECT wk.id as workKindId, wk.name as workKindName, " +
             "AVG(ws.score) as userAverage, COUNT(ws.workKindId) as userCount " +
             "FROM WorkKindSurvey ws " +
             "JOIN WorkKind wk ON ws.workKindId = wk.id " +
+            "JOIN TeamMember tm ON ws.userId = tm.userId " +
             "WHERE ws.userId = :userId " +
+            "AND tm.teamId = :teamId " +
             "AND ws.submitted BETWEEN :startDate AND :endDate " +
             "GROUP BY wk.id, wk.name " +
             "ORDER BY userCount DESC, userAverage DESC")
     List<Object[]> findTopWorkKindsByUserAndDateRange(@Param("userId") Integer userId,
+                                                      @Param("teamId") Integer teamId,
                                                       @Param("startDate") LocalDateTime startDate,
                                                       @Param("endDate") LocalDateTime endDate);
 
-    // work kinds for a team with date range (excluding the specific user)
+    // work kinds for a team with date range
     @Query("SELECT wk.id as workKindId, wk.name as workKindName, " +
             "AVG(ws.score) as teamAverage, COUNT(ws.workKindId) as teamCount " +
             "FROM WorkKindSurvey ws " +
             "JOIN WorkKind wk ON ws.workKindId = wk.id " +
             "WHERE ws.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
-            "AND ws.userId != :userId " +
             "AND ws.submitted BETWEEN :startDate AND :endDate " +
             "GROUP BY wk.id, wk.name " +
             "ORDER BY teamCount DESC, teamAverage DESC")
     List<Object[]> findTopWorkKindsByTeamAndDateRange(@Param("teamId") Integer teamId,
-                                                      @Param("userId") Integer userId,
                                                       @Param("startDate") LocalDateTime startDate,
                                                       @Param("endDate") LocalDateTime endDate);
 
-    // work kinds for a user without date range
+    // work kinds for a user without date range within a specific team
     @Query("SELECT wk.id as workKindId, wk.name as workKindName, " +
             "AVG(ws.score) as userAverage, COUNT(ws.workKindId) as userCount " +
             "FROM WorkKindSurvey ws " +
             "JOIN WorkKind wk ON ws.workKindId = wk.id " +
+            "JOIN TeamMember tm ON ws.userId = tm.userId " +
             "WHERE ws.userId = :userId " +
+            "AND tm.teamId = :teamId " +
             "GROUP BY wk.id, wk.name " +
             "ORDER BY userCount DESC, userAverage DESC")
-    List<Object[]> findTopWorkKindsByUser(@Param("userId") Integer userId);
+    List<Object[]> findTopWorkKindsByUser(@Param("userId") Integer userId, @Param("teamId") Integer teamId);
+
 
     // work kinds for a team without date range (excluding the specific user)
     @Query("SELECT wk.id as workKindId, wk.name as workKindName, " +
@@ -76,10 +78,9 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "FROM WorkKindSurvey ws " +
             "JOIN WorkKind wk ON ws.workKindId = wk.id " +
             "WHERE ws.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
-            "AND ws.userId != :userId " +
             "GROUP BY wk.id, wk.name " +
             "ORDER BY teamCount DESC, teamAverage DESC")
-    List<Object[]> findTopWorkKindsByTeam(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
+    List<Object[]> findTopWorkKindsByTeam(@Param("teamId") Integer teamId);
 
 
     // Fetch most voted emotions for the user with date range
@@ -99,12 +100,10 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "FROM EmotionSurvey e " +
             "JOIN Emotion em ON e.emotionId = em.id " +
             "WHERE e.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
-            "AND e.userId != :userId " +
             "AND e.submitted BETWEEN :startDate AND :endDate " +
             "GROUP BY e.emotionId, em.name " +
             "ORDER BY teamCount DESC")
     List<Object[]> findTopEmotionsByTeamAndDateRange(@Param("teamId") Integer teamId,
-                                                     @Param("userId") Integer userId,
                                                      @Param("startDate") LocalDateTime startDate,
                                                      @Param("endDate") LocalDateTime endDate);
 
@@ -122,16 +121,9 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "FROM EmotionSurvey e " +
             "JOIN Emotion em ON e.emotionId = em.id " +
             "WHERE e.userId IN (SELECT tm.userId FROM TeamMember tm WHERE tm.teamId = :teamId) " +
-            "AND e.userId != :userId " +
             "GROUP BY e.emotionId, em.name " +
             "ORDER BY teamCount DESC")
-    List<Object[]> findTopEmotionsByTeam(@Param("teamId") Integer teamId, @Param("userId") Integer userId);
-
-
-
-
-//   sdfsdfsdfsdf
-
+    List<Object[]> findTopEmotionsByTeam(@Param("teamId") Integer teamId);
 
 
     // Query to get the distinct workkind count and list of workkind IDs for a specific user on each day, no date range
@@ -142,8 +134,6 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "GROUP BY DATE_TRUNC('day', w.submitted) " +
             "ORDER BY DATE_TRUNC('day', w.submitted)")
     List<Object[]> findWorkKindCountPerDayForUserNoDateRange(@Param("userId") Integer userId);
-
-
 
     // Query with date range using LocalDateTime for parameters and casting in the query
     @Query(value = "SELECT DATE_TRUNC('day', submitted) AS dateTime, " +
@@ -180,8 +170,6 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "ORDER BY DATE_TRUNC('day', submitted)",
             nativeQuery = true)
     List<Object[]> findTeamWorkKindCountPerDayNoDateRange(@Param("teamId") Integer teamId);
-
-
 
 
 }
