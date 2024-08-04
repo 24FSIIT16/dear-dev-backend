@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class WorkKindCountPerDayInsightDTO {
     private Integer workKindCount;
-    private Double userAverageHappiness;
-    private Double teamAverageHappiness;
+    private Integer userAverageHappiness;
+    private Integer teamAverageHappiness;
 }

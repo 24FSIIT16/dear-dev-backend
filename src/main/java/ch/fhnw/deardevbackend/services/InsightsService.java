@@ -67,15 +67,16 @@ public class InsightsService {
             teamAverages = insightsRepository.findTeamDailyAverages(teamId);
         } else {
             Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
+            if (sprintConfigOptional.isEmpty()) {
+                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
+            }
             SprintConfig sprintConfig = sprintConfigOptional.get();
-
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
 
             userAverages = happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(userId, startDate, endDate);
             teamAverages = insightsRepository.findTeamDailyAveragesAndDateRange(teamId, startDate, endDate);
         }
-
 
         Map<String, Double> teamAveragesMap = teamAverages.stream()
                 .collect(Collectors.toMap(
@@ -86,14 +87,13 @@ public class InsightsService {
         return userAverages.stream()
                 .map(userAvg -> {
                     String day = userAvg[0].toString();
-                    double userAverage = ((Number) userAvg[1]).doubleValue();
-                    double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
-                    return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
+                    Integer userAverage = ((Number) userAvg[1]).intValue();  // Convert user average to Integer
+                    Integer teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();  // Convert team average to Integer
+                    return happinessInsightMapper.toDTO(day, userAverage.doubleValue(), teamAverage.doubleValue());
                 })
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
                 .collect(Collectors.toList());
-
     }
 
     private double calculateAverageHappiness(List<HappinessInsightDTO> insights, boolean isUser) {
@@ -115,6 +115,10 @@ public class InsightsService {
             teamWorkKinds = insightsRepository.findTopWorkKindsByTeam(teamId);
         } else {
             Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
+            if (sprintConfigOptional.isEmpty()) {
+                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
+            }
+
             SprintConfig sprintConfig = sprintConfigOptional.get();
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
@@ -128,16 +132,16 @@ public class InsightsService {
                 .map(workKind -> workKindInsightMapper.toUserDTO(
                         (Integer) workKind[0],
                         (String) workKind[1],
-                        (Double) workKind[2],
-                        (Long) workKind[3]))
+                        ((Number) workKind[2]).intValue(),
+                        ((Number) workKind[3]).intValue()))
                 .collect(Collectors.toList());
 
         List<WorkKindInsightDTO> teamWorkKindInsights = teamWorkKinds.stream()
                 .map(workKind -> workKindInsightMapper.toTeamDTO(
                         (Integer) workKind[0],
                         (String) workKind[1],
-                        (Double) workKind[2],
-                        (Long) workKind[3]))
+                        ((Number) workKind[2]).intValue(),
+                        ((Number) workKind[3]).intValue()))
                 .collect(Collectors.toList());
 
         // Merge user and team insights into a single list
@@ -160,10 +164,10 @@ public class InsightsService {
                     return new WorkKindInsightDTO(
                             userDto.getWorkKindId(),
                             userDto.getWorkKindName(),
-                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0.0,
-                            userDto.getUserCount() != null ? userDto.getUserCount() : 0L,
-                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0.0,
-                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
+                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0,
+                            userDto.getUserCount() != null ? userDto.getUserCount() : 0,
+                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0,
+                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0
                     );
                 });
             }
@@ -188,6 +192,9 @@ public class InsightsService {
             teamEmotions = insightsRepository.findTopEmotionsByTeam(teamId);
         } else {
             Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
+            if (sprintConfigOptional.isEmpty()) {
+                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
+            }
             SprintConfig sprintConfig = sprintConfigOptional.get();
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
@@ -250,6 +257,10 @@ public class InsightsService {
             teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayNoDateRange(teamId);
         } else {
             Optional<SprintConfig> sprintConfigOptional = sprintConfigRepository.findById(sprintId);
+            if (sprintConfigOptional.isEmpty()) {
+                throw new IllegalArgumentException("Invalid sprint ID: " + sprintId);
+            }
+
             SprintConfig sprintConfig = sprintConfigOptional.get();
 
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
@@ -259,65 +270,54 @@ public class InsightsService {
             teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayWithDateRange(teamId, startDate, endDate);
         }
 
-        // Map to store workKindCount -> list of daily average happiness scores
         Map<Integer, List<Double>> userHappinessScoresMap = new HashMap<>();
         Map<Integer, Double> teamHappinessScoresMap = new HashMap<>();
 
-
-        // Calculate daily average happiness scores
         for (Object[] entry : workKindData) {
             Object dateObj = entry[0];
-            Long workKindCount = ((Number) entry[1]).longValue();
+            int workKindCount = ((Number) entry[1]).intValue();
 
             LocalDate dateTime = convertToLocalDate(dateObj);
 
-            // Get the average happiness score for the given day
             Double averageHappinessScore = happinessSurveyRepository.findAverageScoreByUserIdAndDate(userId, dateTime);
 
             if (averageHappinessScore != null) {
-                // Add the score to the map
                 userHappinessScoresMap.computeIfAbsent(Math.toIntExact(workKindCount), k -> new ArrayList<>()).add(averageHappinessScore);
             }
         }
         // Calculate daily average happiness scores for the team
         for (Object[] entry : teamWorkKindData) {
-            Long workKindCount = ((Number) entry[1]).longValue();
+            Integer workKindCount = ((Number) entry[1]).intValue();
             Double teamAverageHappiness = ((Number) entry[2]).doubleValue();
-            teamHappinessScoresMap.put(Math.toIntExact(workKindCount), teamAverageHappiness);
+            teamHappinessScoresMap.put(workKindCount, teamAverageHappiness);
         }
 
-        // Calculate the average happiness score for all days with the same work kind count
         List<WorkKindCountPerDayInsightDTO> result = new ArrayList<>();
         for (Map.Entry<Integer, List<Double>> entry : userHappinessScoresMap.entrySet()) {
             Integer workKindCount = entry.getKey();
             List<Double> scores = entry.getValue();
 
-            double userAverageHappiness = scores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-            double teamAverageHappiness = teamHappinessScoresMap.getOrDefault(workKindCount, 0.0);
+            Integer userAverageHappiness = (int) Math.round(scores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0));
+            Integer teamAverageHappiness = (int) Math.round(teamHappinessScoresMap.getOrDefault(workKindCount, 0.0));
 
-            // Create DTO
             WorkKindCountPerDayInsightDTO dto = new WorkKindCountPerDayInsightDTO(workKindCount, userAverageHappiness, teamAverageHappiness);
             result.add(dto);
         }
-
         return result;
     }
 
-    // convert date object to LocalDate
     private LocalDate convertToLocalDate(Object dateObj) {
-        if (dateObj instanceof LocalDate) {
-            return (LocalDate) dateObj;
-        } else if (dateObj instanceof LocalDateTime) {
-            return ((LocalDateTime) dateObj).toLocalDate();
-        } else if (dateObj instanceof java.sql.Date) {
-            return ((java.sql.Date) dateObj).toLocalDate();
-        } else if (dateObj instanceof java.sql.Timestamp) {
-            return ((java.sql.Timestamp) dateObj).toLocalDateTime().toLocalDate();
-        } else if (dateObj instanceof Instant) {
-            return ((Instant) dateObj).atZone(ZoneId.systemDefault()).toLocalDate();
-        } else {
-            throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass().getName());
-        }
+        return switch (dateObj) {
+            case LocalDate localDate -> localDate;
+            case LocalDateTime localDateTime -> localDateTime.toLocalDate();
+            case java.sql.Date date -> date.toLocalDate();
+            case java.sql.Timestamp timestamp -> timestamp.toLocalDateTime().toLocalDate();
+            case Instant instant -> instant.atZone(ZoneId.systemDefault()).toLocalDate();
+            case null, default -> {
+                assert dateObj != null;
+                throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass().getName());
+            }
+        };
     }
 
 
