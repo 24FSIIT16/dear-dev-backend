@@ -1,6 +1,8 @@
 package ch.fhnw.deardevbackend.controller;
 
 import ch.fhnw.deardevbackend.dto.CreateSprintDTO;
+import ch.fhnw.deardevbackend.dto.SprintIdAndTeamIdDTO;
+import ch.fhnw.deardevbackend.dto.SprintsAndTeamsDTO;
 import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.User;
 import ch.fhnw.deardevbackend.mapper.SprintConfigMapper;
@@ -32,13 +34,17 @@ public class SprintConfigController {
         return ResponseEntity.ok().body(sprintConfig);
     }
 
+    @GetMapping("/sprints-and-teams")
+    public ResponseEntity<SprintsAndTeamsDTO> getSprintsAndTeams() {
+        Integer userId = getCurrentUserFromContext().getId();
+        SprintsAndTeamsDTO sprintsAndTeams = sprintConfigService.getSprintsAndTeams(userId);
+        return ResponseEntity.ok().body(sprintsAndTeams);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<SprintConfig> createSprint(@RequestBody CreateSprintDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
         SprintConfig sprintConfig = SprintConfigMapper.INSTANCE.toEntity(request);
-        sprintConfig.setCreatedBy(user.getId());
+        sprintConfig.setCreatedBy(getCurrentUserFromContext().getId());
         sprintConfig.setCreatedAt(LocalDateTime.now());
 
         SprintConfig createdSprint = sprintConfigService.createSprint(sprintConfig);
@@ -49,5 +55,20 @@ public class SprintConfigController {
     public ResponseEntity<SprintConfig> updateSprintConfig(@PathVariable Integer sprintId, @RequestBody CreateSprintDTO request) {
         SprintConfig updatedSprint = sprintConfigService.updateSprint(sprintId, request);
         return ResponseEntity.ok().body(updatedSprint);
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<String> startSprint(@RequestBody SprintIdAndTeamIdDTO request) {
+        try {
+            sprintConfigService.startSprint(request.getTeamId(), request.getSprintId());
+            return ResponseEntity.ok().body("Sprint started successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private User getCurrentUserFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }
