@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface SprintConfigRepository extends JpaRepository<SprintConfig, Integer> {
 
+    List<SprintConfig> findByTeamIdAndStatus(Integer teamId, SprintStatus status);
+
     List<SprintConfig> findAllByCreatedBy(Integer createdBy);
 
     List<SprintConfig> findByCreatedByAndStatusAndStartDateAfter(Integer createdBy, SprintStatus status, LocalDate startDate);

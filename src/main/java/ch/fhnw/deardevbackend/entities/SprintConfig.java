@@ -26,7 +26,7 @@ public class SprintConfig {
     @Column(name = "sprint_goal")
     private String sprintGoal;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
 
