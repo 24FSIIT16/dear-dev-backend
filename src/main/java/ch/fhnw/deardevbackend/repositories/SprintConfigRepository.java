@@ -1,6 +1,7 @@
 package ch.fhnw.deardevbackend.repositories;
 
 import ch.fhnw.deardevbackend.entities.SprintConfig;
+import ch.fhnw.deardevbackend.entities.SprintStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +13,5 @@ public interface SprintConfigRepository extends JpaRepository<SprintConfig, Inte
 
     List<SprintConfig> findAllByCreatedBy(Integer createdBy);
 
-    List<SprintConfig> findByCreatedByAndActiveFalseAndStartDateAfter(Integer createdBy, LocalDate startDate);
+    List<SprintConfig> findByCreatedByAndStatusAndStartDateAfter(Integer createdBy, SprintStatus status, LocalDate startDate);
 }
