@@ -138,11 +138,9 @@ public class InsightsService {
                         ((Number) workKind[3]).intValue()))
                 .collect(Collectors.toList());
 
-        // Merge user and team insights into a single list
         return mergeUserAndTeamWorkKindInsights(userWorkKindInsights, teamWorkKindInsights);
     }
 
-    // Top 5 work kinds by user and team
     private List<WorkKindInsightDTO> mergeUserAndTeamWorkKindInsights(List<WorkKindInsightDTO> userWorkKindInsights, List<WorkKindInsightDTO> teamWorkKindInsights) {
         Map<Integer, WorkKindInsightDTO> merged = new HashMap<>();
 
@@ -244,7 +242,7 @@ public class InsightsService {
         List<Object[]> teamWorkKindData;
 
         if (sprintId == 0) {
-            workKindData = insightsRepository.findWorkKindCountPerDayForUserNoDateRange(userId);
+            workKindData = insightsRepository.findWorkKindCountPerDayForUserNoDateRange(userId, teamId);
             teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayNoDateRange(teamId);
         } else {
             SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
@@ -253,7 +251,7 @@ public class InsightsService {
             LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
             LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
 
-            workKindData = insightsRepository.findWorkKindCountPerDayForUserWithDateRange(userId, startDate, endDate);
+            workKindData = insightsRepository.findWorkKindCountPerDayForUserWithDateRange(userId, teamId, startDate, endDate);
             teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayWithDateRange(teamId, startDate, endDate);
         }
 

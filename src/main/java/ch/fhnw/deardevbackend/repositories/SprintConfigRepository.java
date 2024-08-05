@@ -2,6 +2,7 @@ package ch.fhnw.deardevbackend.repositories;
 
 import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.SprintStatus;
+import ch.fhnw.deardevbackend.entities.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,7 @@ public interface SprintConfigRepository extends JpaRepository<SprintConfig, Inte
     List<SprintConfig> findByCreatedByAndStatusAndStartDateAfter(Integer createdBy, SprintStatus status, LocalDate startDate);
 
     Optional<SprintConfig> findById(Integer id);
+
+    List<SprintConfig> findByTeamAndStatusIn(Team team, List<SprintStatus> statuses);
+
 }
