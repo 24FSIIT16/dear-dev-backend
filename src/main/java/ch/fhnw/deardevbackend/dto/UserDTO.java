@@ -10,4 +10,5 @@ public class UserDTO {
     private String loginProvider;
     private String username;
     private Boolean hasTeam;
+    private String githubUserName;
 }
