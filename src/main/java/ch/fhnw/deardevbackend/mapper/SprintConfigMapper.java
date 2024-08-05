@@ -13,12 +13,8 @@ public interface SprintConfigMapper {
 
     SprintConfigMapper INSTANCE = Mappers.getMapper(SprintConfigMapper.class);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "active", ignore = true)
-    SprintConfig toEntity(CreateSprintDTO dto);
-
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "status", ignore = true)
     SprintConfig updateSprintFromDTO(CreateSprintDTO dto, @MappingTarget SprintConfig sprintConfig);
 }

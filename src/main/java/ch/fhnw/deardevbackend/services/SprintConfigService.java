@@ -4,6 +4,7 @@ import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
 import ch.fhnw.deardevbackend.dto.CreateSprintDTO;
 import ch.fhnw.deardevbackend.dto.SprintsAndTeamsDTO;
 import ch.fhnw.deardevbackend.entities.SprintConfig;
+import ch.fhnw.deardevbackend.entities.SprintStatus;
 import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.mapper.SprintConfigMapper;
 import ch.fhnw.deardevbackend.repositories.SprintConfigRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +38,25 @@ public class SprintConfigService {
 
     public SprintsAndTeamsDTO getSprintsAndTeams(Integer userId) {
         List<Team> teams = teamRepository.findActiveTeamsByUserId(userId);
-        List<SprintConfig> sprints = sprintConfigRepository.findByCreatedByAndActiveFalseAndStartDateAfter(userId, LocalDate.now());
+        LocalDate today = LocalDate.now();
+        List<SprintConfig> sprints = sprintConfigRepository.findByCreatedByAndStatusAndStartDateAfter(userId, SprintStatus.OPEN, today.minusDays(1));
 
         return new SprintsAndTeamsDTO(teams, sprints);
     }
 
-    public SprintConfig createSprint(SprintConfig sprintConfig) {
-        return sprintConfigRepository.save(sprintConfig);
+    public SprintConfig createSprint(CreateSprintDTO dto, Integer userId) {
+
+        SprintConfig sprint = SprintConfig.builder()
+                .sprintName(dto.getSprintName())
+                .sprintGoal(dto.getSprintGoal())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .createdBy(userId)
+                .status(SprintStatus.OPEN)
+                .build();
+
+        return sprintConfigRepository.save(sprint);
     }
 
     @Transactional
@@ -65,7 +79,7 @@ public class SprintConfigService {
         teamRepository.save(team);
 
         SprintConfig sprint = sprintConfigRepository.findById(sprintId).orElseThrow(() -> new YappiException("Sprint not found with id: " + sprintId));
-        sprint.setActive(true);
+        sprint.setStatus(SprintStatus.IN_PROGRESS);
         sprintConfigRepository.save(sprint);
     }
 }

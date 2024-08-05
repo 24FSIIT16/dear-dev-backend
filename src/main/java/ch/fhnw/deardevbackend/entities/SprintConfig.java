@@ -42,6 +42,7 @@ public class SprintConfig {
     @Column(name = "created_by")
     private Integer createdBy;
 
-    @Column(name = "active")
-    private boolean active;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SprintStatus status;
 }

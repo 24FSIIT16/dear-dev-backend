@@ -5,7 +5,6 @@ import ch.fhnw.deardevbackend.dto.SprintIdAndTeamIdDTO;
 import ch.fhnw.deardevbackend.dto.SprintsAndTeamsDTO;
 import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.User;
-import ch.fhnw.deardevbackend.mapper.SprintConfigMapper;
 import ch.fhnw.deardevbackend.services.SprintConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -43,11 +41,8 @@ public class SprintConfigController {
 
     @PostMapping("/create")
     public ResponseEntity<SprintConfig> createSprint(@RequestBody CreateSprintDTO request) {
-        SprintConfig sprintConfig = SprintConfigMapper.INSTANCE.toEntity(request);
-        sprintConfig.setCreatedBy(getCurrentUserFromContext().getId());
-        sprintConfig.setCreatedAt(LocalDateTime.now());
-
-        SprintConfig createdSprint = sprintConfigService.createSprint(sprintConfig);
+        Integer userId = getCurrentUserFromContext().getId();
+        SprintConfig createdSprint = sprintConfigService.createSprint(request, userId);
         return ResponseEntity.ok().body(createdSprint);
     }
 
