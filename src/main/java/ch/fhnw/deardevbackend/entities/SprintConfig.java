@@ -26,7 +26,7 @@ public class SprintConfig {
     @Column(name = "sprint_goal")
     private String sprintGoal;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
 
@@ -42,6 +42,7 @@ public class SprintConfig {
     @Column(name = "created_by")
     private Integer createdBy;
 
-    @Column(name = "active")
-    private boolean active;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SprintStatus status;
 }

@@ -1,14 +1,22 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
+import ch.fhnw.deardevbackend.dto.ActiveSprintsDTO;
 import ch.fhnw.deardevbackend.dto.CreateSprintDTO;
+import ch.fhnw.deardevbackend.dto.SprintsAndTeamsDTO;
 import ch.fhnw.deardevbackend.entities.SprintConfig;
+import ch.fhnw.deardevbackend.entities.SprintStatus;
+import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.mapper.SprintConfigMapper;
 import ch.fhnw.deardevbackend.repositories.SprintConfigRepository;
+import ch.fhnw.deardevbackend.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +25,8 @@ public class SprintConfigService {
 
     @Autowired
     private SprintConfigRepository sprintConfigRepository;
+    @Autowired
+    private TeamRepository teamRepository;
     @Autowired
     private SprintConfigMapper sprintConfigMapper;
 
@@ -28,8 +38,42 @@ public class SprintConfigService {
         return sprintConfigRepository.findById(sprintId).orElseThrow(() -> new YappiException("Sprint not found with id: " + sprintId));
     }
 
-    public SprintConfig createSprint(SprintConfig sprintConfig) {
-        return sprintConfigRepository.save(sprintConfig);
+    public SprintsAndTeamsDTO getSprintsAndTeams(Integer userId) {
+        List<Team> teams = teamRepository.findActiveTeamsWithNoActiveSprintByUserId(userId);
+        LocalDate today = LocalDate.now();
+        List<SprintConfig> sprints = sprintConfigRepository.findByCreatedByAndStatusAndStartDateAfter(userId, SprintStatus.OPEN, today.minusDays(1));
+
+        return new SprintsAndTeamsDTO(teams, sprints);
+    }
+
+    public List<ActiveSprintsDTO> getActiveSprints(Integer userId) {
+        List<Team> teams = teamRepository.findActiveTeamsByUserId(userId);
+        List<ActiveSprintsDTO> activeSprints = new ArrayList<>();
+        for (Team team : teams) {
+            List<SprintConfig> sprints = sprintConfigRepository.findByTeamIdAndStatus(team.getId(), SprintStatus.IN_PROGRESS);
+            for (SprintConfig sprint : sprints) {
+                ActiveSprintsDTO dto = new ActiveSprintsDTO();
+                dto.setTeamName(team.getName());
+                dto.setSprint(sprint);
+                activeSprints.add(dto);
+            }
+        }
+        return activeSprints;
+    }
+
+    public SprintConfig createSprint(CreateSprintDTO dto, Integer userId) {
+
+        SprintConfig sprint = SprintConfig.builder()
+                .sprintName(dto.getSprintName())
+                .sprintGoal(dto.getSprintGoal())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .createdBy(userId)
+                .status(SprintStatus.OPEN)
+                .build();
+
+        return sprintConfigRepository.save(sprint);
     }
 
     @Transactional
@@ -45,4 +89,22 @@ public class SprintConfigService {
         }
     }
 
+    @Transactional
+    public void startSprint(Integer teamId, Integer sprintId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new YappiException("Team not found with id: " + teamId));
+        team.setCurrentSprintId(sprintId);
+        teamRepository.save(team);
+
+        SprintConfig sprint = sprintConfigRepository.findById(sprintId).orElseThrow(() -> new YappiException("Sprint not found with id: " + sprintId));
+        sprint.setStatus(SprintStatus.IN_PROGRESS);
+        sprint.setTeam(team);
+        sprintConfigRepository.save(sprint);
+    }
+
+    @Transactional
+    public void completeSprint(Integer sprintId) {
+        SprintConfig sprint = sprintConfigRepository.findById(sprintId).orElseThrow(() -> new YappiException("Sprint not found with id: " + sprintId));
+        sprint.setStatus(SprintStatus.COMPLETED);
+        sprintConfigRepository.save(sprint);
+    }
 }

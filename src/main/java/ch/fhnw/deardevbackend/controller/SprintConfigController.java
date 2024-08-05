@@ -1,9 +1,11 @@
 package ch.fhnw.deardevbackend.controller;
 
+import ch.fhnw.deardevbackend.dto.ActiveSprintsDTO;
 import ch.fhnw.deardevbackend.dto.CreateSprintDTO;
+import ch.fhnw.deardevbackend.dto.SprintIdAndTeamIdDTO;
+import ch.fhnw.deardevbackend.dto.SprintsAndTeamsDTO;
 import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.User;
-import ch.fhnw.deardevbackend.mapper.SprintConfigMapper;
 import ch.fhnw.deardevbackend.services.SprintConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -32,16 +33,24 @@ public class SprintConfigController {
         return ResponseEntity.ok().body(sprintConfig);
     }
 
+    @GetMapping("/sprints-and-teams")
+    public ResponseEntity<SprintsAndTeamsDTO> getSprintsAndTeams() {
+        Integer userId = getCurrentUserFromContext().getId();
+        SprintsAndTeamsDTO sprintsAndTeams = sprintConfigService.getSprintsAndTeams(userId);
+        return ResponseEntity.ok().body(sprintsAndTeams);
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<ActiveSprintsDTO>> getActiveSprints() {
+        Integer userId = getCurrentUserFromContext().getId();
+        List<ActiveSprintsDTO> activeSprints = sprintConfigService.getActiveSprints(userId);
+        return ResponseEntity.ok().body(activeSprints);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<SprintConfig> createSprint(@RequestBody CreateSprintDTO request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-
-        SprintConfig sprintConfig = SprintConfigMapper.INSTANCE.toEntity(request);
-        sprintConfig.setCreatedBy(user.getId());
-        sprintConfig.setCreatedAt(LocalDateTime.now());
-
-        SprintConfig createdSprint = sprintConfigService.createSprint(sprintConfig);
+        Integer userId = getCurrentUserFromContext().getId();
+        SprintConfig createdSprint = sprintConfigService.createSprint(request, userId);
         return ResponseEntity.ok().body(createdSprint);
     }
 
@@ -49,5 +58,30 @@ public class SprintConfigController {
     public ResponseEntity<SprintConfig> updateSprintConfig(@PathVariable Integer sprintId, @RequestBody CreateSprintDTO request) {
         SprintConfig updatedSprint = sprintConfigService.updateSprint(sprintId, request);
         return ResponseEntity.ok().body(updatedSprint);
+    }
+
+    @PutMapping("/complete/{sprintId}")
+    public ResponseEntity<String> completeSprint(@PathVariable Integer sprintId) {
+        try {
+            sprintConfigService.completeSprint(sprintId);
+            return ResponseEntity.ok().body("Sprint completed successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<String> startSprint(@RequestBody SprintIdAndTeamIdDTO request) {
+        try {
+            sprintConfigService.startSprint(request.getTeamId(), request.getSprintId());
+            return ResponseEntity.ok().body("Sprint started successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private User getCurrentUserFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }

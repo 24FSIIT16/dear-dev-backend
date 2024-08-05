@@ -92,7 +92,7 @@ CREATE TABLE sprint_config
     end_date    DATE        NOT NULL,
     created_at  TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     created_by  INTEGER     NOT NULL,
-    active      BOOLEAN,
+    status VARCHAR(20) NOT NULL,
 
     PRIMARY KEY (id)
 );
