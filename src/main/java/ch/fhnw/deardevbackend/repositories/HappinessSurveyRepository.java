@@ -19,7 +19,7 @@ public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey
     @Query("SELECT MAX(h.submitted) FROM HappinessSurvey h WHERE h.userId = :userId")
     LocalDateTime findLastSubmissionDateByUserId(Integer userId);
 
-    @Query("SELECT COUNT(DISTINCT(h.submitted)) FROM HappinessSurvey h WHERE h.userId = :userId")
+    @Query("SELECT COUNT(DISTINCT(CAST(h.submitted AS date))) FROM HappinessSurvey h WHERE h.userId = :userId")
     int countDaysWithHappinessSurveyThisYear(@Param("userId") Integer userId);
 
     @Query("SELECT COUNT(h) FROM HappinessSurvey h WHERE h.userId = :userId AND CAST(h.submitted AS date) = CURRENT_DATE")
