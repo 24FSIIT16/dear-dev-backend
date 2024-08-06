@@ -13,15 +13,20 @@ import java.util.List;
 @Repository
 public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey, Integer> {
 
-    @Query("SELECT o FROM HappinessSurvey o WHERE o.userId = :userId")
-    List<HappinessSurvey> findByUserId(@Param("userId") Integer userId);
-
-    @Query("SELECT AVG(o.score) FROM HappinessSurvey o WHERE o.userId = :userId")
-    Double findAverageScoreByUserId(@Param("userId") Integer userId);
-
     @Query("SELECT CAST(s.submitted AS date) AS day, AVG(s.score) AS dailyAverage FROM HappinessSurvey s WHERE s.userId = :userId GROUP BY day")
     List<Object[]> findDailyAveragesByUserId(Integer userId);
 
+    @Query("SELECT MAX(h.submitted) FROM HappinessSurvey h WHERE h.userId = :userId")
+    LocalDateTime findLastSubmissionDateByUserId(Integer userId);
+
+    @Query("SELECT COUNT(DISTINCT(h.submitted)) FROM HappinessSurvey h WHERE h.userId = :userId")
+    int countDaysWithHappinessSurveyThisYear(@Param("userId") Integer userId);
+
+    @Query("SELECT COUNT(h) FROM HappinessSurvey h WHERE h.userId = :userId AND CAST(h.submitted AS date) = CURRENT_DATE")
+    int numberOfHappinessSurveysToday(@Param("userId") Integer userId);
+
+    @Query("SELECT AVG(h.score) FROM HappinessSurvey h WHERE h.userId = :userId")
+    Double findAverageHappinessScore(@Param("userId") Integer userId);
 
     @Query("SELECT CAST(s.submitted AS date) AS day, AVG(s.score) AS dailyAverage " +
             "FROM HappinessSurvey s " +
