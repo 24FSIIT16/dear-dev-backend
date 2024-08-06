@@ -1,14 +1,14 @@
 package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.annotations.ValidateUserId;
-import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
-import ch.fhnw.deardevbackend.dto.*;
+import ch.fhnw.deardevbackend.dto.DashboardDTO;
+import ch.fhnw.deardevbackend.dto.SubmitEmotionSurveyDTO;
+import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
+import ch.fhnw.deardevbackend.dto.SubmitWorkKindSurveyDTO;
 import ch.fhnw.deardevbackend.entities.EmotionSurvey;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
-import ch.fhnw.deardevbackend.entities.WorkKind;
 import ch.fhnw.deardevbackend.entities.WorkKindSurvey;
-import ch.fhnw.deardevbackend.mapper.DashboardMapper;
 import ch.fhnw.deardevbackend.mapper.SubmitEmotionSurveyMapper;
 import ch.fhnw.deardevbackend.mapper.SubmitHappinessSurveyMapper;
 import ch.fhnw.deardevbackend.mapper.SubmitWorkKindSurveyMapper;
@@ -19,7 +19,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +36,6 @@ public class DashboardService {
     private EmotionSurveyRepository emotionSurveyRepository;
 
     @Autowired
-    private WorkKindRepository workKindRepository;
-
-    @Autowired
     private SubmitHappinessSurveyMapper submitHappinessSurveyMapper;
 
     @Autowired
@@ -45,6 +43,12 @@ public class DashboardService {
 
     @Autowired
     private SubmitEmotionSurveyMapper submitEmotionSurveyMapper;
+
+    @Autowired
+    private SprintConfigRepository sprintConfigRepository;
+
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
 
     @ValidateUserId
     @Transactional
@@ -79,52 +83,54 @@ public class DashboardService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Integer getAverageScoreByUserId(@ValidateUserIdParam Integer userId) {
+    public DashboardDTO getDashboardData(Integer userId) {
         try {
-            List<Object[]> dailyAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
+            DashboardDTO dto = new DashboardDTO();
 
-            if (dailyAverages.isEmpty()) {
-                return null;
-            }
+            dto.setLastSubmissionDateOfHappiness(
+                    Optional.ofNullable(happinessSurveyRepository.findLastSubmissionDateByUserId(userId))
+                            .map(LocalDateTime::toLocalDate)
+                            .orElse(null)
+            );
 
-            double total = 0;
-            for (Object[] dailyAverage : dailyAverages) {
-                total += (Double) dailyAverage[1];
-            }
+            dto.setActiveSprintEndDate(
+                    sprintConfigRepository.findClosestActiveSprintEndDateByUserId(userId)
+                            .orElse(null)
+            );
 
-            double overallAverage = total / dailyAverages.size();
-            return (int) Math.round(overallAverage);
+            dto.setMostTrackedEmotions(
+                    emotionSurveyRepository.findTopTwoTrackedEmotions(userId)
+            );
+
+            dto.setMostTrackedWorkKind(
+                    workKindSurveyRepository.findMostTrackedWorkType(userId)
+            );
+
+            dto.setNumberOfDaysWithHappinessSurvey(
+                    happinessSurveyRepository.countDaysWithHappinessSurveyThisYear(userId)
+            );
+
+            dto.setNumberOfHappinessSurveysToday(
+                    happinessSurveyRepository.numberOfHappinessSurveysToday(userId)
+            );
+
+            dto.setNumberOfTeams(
+                    teamMemberRepository.countTeamsUserIsIn(userId)
+            );
+
+            dto.setNumberOfTeamMembers(
+                    teamMemberRepository.countTotalTeamMembersForUser(userId)
+            );
+
+            dto.setAverageHappinessScore(
+                    Optional.ofNullable(happinessSurveyRepository.findAverageHappinessScore(userId))
+                            .map(score -> Math.round(score * 10.0) / 10.0)
+                            .orElse(null)
+            );
+
+            return dto;
         } catch (Exception ex) {
-            throw new YappiException("Error calculating average score for user ID: " + userId);
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public DashboardDTO getDashboardDataByUserId(@ValidateUserIdParam Integer userId) {
-        try {
-
-            Integer averageScore = getAverageScoreByUserId(userId);
-
-            List<Object[]> results = workKindSurveyRepository.findWorkKindCountByUserId(userId);
-
-            if (results.isEmpty()) {
-                return DashboardMapper.INSTANCE.toDashboardDTO(null, null, null, averageScore, null);
-            }
-
-            Object[] result = results.get(0);
-            int workKindId = (int) result[0];
-            long voteCount = (long) result[1];
-            String workKindName = workKindRepository.findById(workKindId)
-                    .map(WorkKind::getName)
-                    .orElse("Unknown");
-
-            Integer happinessScore = workKindSurveyRepository.findAverageHappinessScoreByWorkKindIdAndUserId(workKindId, userId)
-                    .orElse(null);
-
-            return DashboardMapper.INSTANCE.toDashboardDTO(workKindId, workKindName, (int) voteCount, averageScore, happinessScore);
-        } catch (Exception ex) {
-            throw new YappiException("Error fetching dashboard data for user ID: " + userId);
+            throw new YappiException("Error loading dashboard data for user ID: " + userId);
         }
     }
 

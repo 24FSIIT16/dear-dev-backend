@@ -17,4 +17,6 @@ public interface WorkKindRepository extends JpaRepository<WorkKind, Integer> {
     List<WorkKind> findByTeamIdsOrNoTeam(@Param("teamIds") List<Integer> teamIds);
 
     Optional<WorkKind> findByNameAndTeamId(String name, Integer teamId);
+
+    List<WorkKind> findByTeamId(Integer id);
 }

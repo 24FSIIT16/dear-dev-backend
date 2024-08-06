@@ -4,6 +4,7 @@ import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.SprintStatus;
 import ch.fhnw.deardevbackend.entities.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -23,4 +24,12 @@ public interface SprintConfigRepository extends JpaRepository<SprintConfig, Inte
 
     List<SprintConfig> findByTeamAndStatusIn(Team team, List<SprintStatus> statuses);
 
+
+    @Query(value = "SELECT s.end_date FROM sprint_config s " +
+            "WHERE s.team_id IN (SELECT tm.team_id FROM team_member tm WHERE tm.user_id = :userId) " +
+            "AND s.status = 'IN_PROGRESS' " +
+            "ORDER BY s.end_date " +
+            "LIMIT 1",
+            nativeQuery = true)
+    Optional<LocalDate> findClosestActiveSprintEndDateByUserId(Integer userId);
 }

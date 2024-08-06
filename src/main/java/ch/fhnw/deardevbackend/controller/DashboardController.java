@@ -6,10 +6,13 @@ import ch.fhnw.deardevbackend.dto.SubmitHappinessSurveyDTO;
 import ch.fhnw.deardevbackend.dto.SubmitWorkKindSurveyDTO;
 import ch.fhnw.deardevbackend.entities.EmotionSurvey;
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
+import ch.fhnw.deardevbackend.entities.User;
 import ch.fhnw.deardevbackend.entities.WorkKindSurvey;
 import ch.fhnw.deardevbackend.services.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -19,16 +22,11 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<DashboardDTO> getDashboardDataByUserId(@PathVariable Integer userId) {
-        DashboardDTO dashboardDTO = dashboardService.getDashboardDataByUserId(userId);
+    @GetMapping("/data")
+    public ResponseEntity<DashboardDTO> getDashboardData() {
+        Integer userId = getCurrentUserFromContext().getId();
+        DashboardDTO dashboardDTO = dashboardService.getDashboardData(userId);
         return ResponseEntity.ok().body(dashboardDTO);
-    }
-
-    @GetMapping("/happiness/average/{userId}")
-    public ResponseEntity<Integer> getAverageScoreByUserId(@PathVariable Integer userId) {
-        Integer averageScore = dashboardService.getAverageScoreByUserId(userId);
-        return ResponseEntity.ok().body(averageScore);
     }
 
     @PostMapping("/survey/happiness")
@@ -47,5 +45,10 @@ public class DashboardController {
     public ResponseEntity<EmotionSurvey> submitEmotionSurvey(@RequestBody SubmitEmotionSurveyDTO request) {
         EmotionSurvey data = dashboardService.saveEmotionSurvey(request);
         return ResponseEntity.ok().body(data);
+    }
+
+    private User getCurrentUserFromContext() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }
