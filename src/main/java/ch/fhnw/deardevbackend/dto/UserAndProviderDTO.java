@@ -9,4 +9,5 @@ public class UserAndProviderDTO {
     private String email;
     private String provider;
     private String username;
+    private String githubUserName;
 }

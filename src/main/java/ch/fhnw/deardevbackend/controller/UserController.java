@@ -34,6 +34,6 @@ public class UserController {
 
     @PutMapping("user/update")
     public void updateUser(@RequestBody UserDTO request) {
-        userService.updateUser(request.getId(), request.getUsername());
+        userService.updateUser(request.getId(), request.getUsername(), request.getGithubUserName());
     }
 }

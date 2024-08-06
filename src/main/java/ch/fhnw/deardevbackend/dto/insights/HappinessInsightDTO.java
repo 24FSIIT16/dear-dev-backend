@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class HappinessInsightDTO {
     private String day;
-    private Double userAverage;
-    private Double teamAverage;
+    private Integer userAverage;
+    private Integer teamAverage;
 }

@@ -2,6 +2,7 @@ package ch.fhnw.deardevbackend.services;
 
 import ch.fhnw.deardevbackend.annotations.ValidateUserIdParam;
 import ch.fhnw.deardevbackend.dto.insights.*;
+import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
 import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
 import ch.fhnw.deardevbackend.repositories.*;
@@ -9,8 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
@@ -20,30 +23,30 @@ public class InsightsService {
 
     private final InsightsRepository insightsRepository;
     private final HappinessSurveyRepository happinessSurveyRepository;
-    private final WorkKindSurveyRepository workKindSurveyRepository;
     private final HappinessInsightMapper happinessInsightMapper;
     private final WorkKindInsightMapper workKindInsightMapper;
+    private final SprintConfigRepository sprintConfigRepository;
 
 
     public InsightsService(InsightsRepository insightsRepository,
                            HappinessSurveyRepository happinessSurveyRepository,
                            HappinessInsightMapper happinessInsightMapper,
                            WorkKindInsightMapper workKindInsightMapper,
-                           WorkKindSurveyRepository workKindSurveyRepository) {
+                           SprintConfigRepository sprintConfigRepository) {
+
         this.insightsRepository = insightsRepository;
         this.happinessSurveyRepository = happinessSurveyRepository;
-        this.workKindSurveyRepository = workKindSurveyRepository;
         this.happinessInsightMapper = happinessInsightMapper;
         this.workKindInsightMapper = workKindInsightMapper;
+        this.sprintConfigRepository = sprintConfigRepository;
     }
 
     @Transactional(readOnly = true)
-    public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
-        List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprint);
-        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserAndTeam(userId, teamId, sprint);
-        List<EmotionInsightDTO> emotionInsights = getEmotionInsightsByUserAndTeam(userId, teamId, sprint);
-        List<WorkKindCountPerDayInsightDTO> workKindCountPerDayInsights = getWorkKindCountPerDayInsights(userId, teamId, sprint);
-
+    public InsightDTO getInsightsByTeamAndSprint(@ValidateUserIdParam Integer userId, Integer teamId, Integer sprintId) {
+        List<HappinessInsightDTO> happinessInsights = getHappinessInsightsByTeam(userId, teamId, sprintId);
+        List<WorkKindInsightDTO> workKindInsights = getWorkKindInsightsByUserAndTeam(userId, teamId, sprintId);
+        List<EmotionInsightDTO> emotionInsights = getEmotionInsightsByUserAndTeam(userId, teamId, sprintId);
+        List<WorkKindCountPerDayInsightDTO> workKindCountPerDayInsights = calculateAverageHappinessPerWorkKindCount(userId, sprintId, teamId);
 
         double userAverageHappiness = calculateAverageHappiness(happinessInsights, true);
         double teamAverageHappiness = calculateAverageHappiness(happinessInsights, false);
@@ -55,41 +58,23 @@ public class InsightsService {
     ///// Happiness insights
 
     @Transactional(readOnly = true)
-    public List<HappinessInsightDTO> getHappinessInsightsByTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
-//  todo
-// LocalDateTime startDate = getSprintStartDate(sprint);
-// LocalDateTime endDate = getSprintEndDate(sprint);
-
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = LocalDateTime.now();
-
-
-        switch (sprint.toLowerCase()) {
-            case "current":
-                startDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "last":
-                startDate = LocalDateTime.now().minusWeeks(6);
-                endDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "none":
-            default:
-                startDate = null;
-                endDate = null;
-                break;
-        }
-
+    public List<HappinessInsightDTO> getHappinessInsightsByTeam(@ValidateUserIdParam Integer userId, Integer teamId, Integer sprintId) {
         List<Object[]> userAverages;
         List<Object[]> teamAverages;
 
-        if (startDate != null) {
-            userAverages = happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(userId, startDate, endDate);
-            teamAverages = insightsRepository.findTeamDailyAveragesExcludingUserAndDateRange(teamId, userId, startDate, endDate);
-
-
-        } else {
+        if (sprintId == 0) {
             userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
-            teamAverages = insightsRepository.findTeamDailyAveragesExcludingUser(teamId, userId);
+            teamAverages = insightsRepository.findTeamDailyAverages(teamId);
+        } else {
+            // todo make sure the sprint belongs to the team
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
+
+            LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
+            LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
+
+            userAverages = happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(userId, startDate, endDate);
+            teamAverages = insightsRepository.findTeamDailyAveragesAndDateRange(teamId, startDate, endDate);
         }
 
         Map<String, Double> teamAveragesMap = teamAverages.stream()
@@ -101,14 +86,13 @@ public class InsightsService {
         return userAverages.stream()
                 .map(userAvg -> {
                     String day = userAvg[0].toString();
-                    double userAverage = ((Number) userAvg[1]).doubleValue();
-                    double teamAverage = teamAveragesMap.getOrDefault(day, 0.0);
-                    return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
+                    int userAverage = ((Number) userAvg[1]).intValue();  // Convert user average to Integer
+                    int teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();  // Convert team average to Integer
+                    return happinessInsightMapper.toDTO(day, (double) userAverage, (double) teamAverage);
                 })
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
                 .collect(Collectors.toList());
-
     }
 
     private double calculateAverageHappiness(List<HappinessInsightDTO> insights, boolean isUser) {
@@ -121,63 +105,43 @@ public class InsightsService {
     ///// Workkind insights
 
     @Transactional(readOnly = true)
-    public List<WorkKindInsightDTO> getWorkKindInsightsByUserAndTeam(@ValidateUserIdParam Integer userId, Integer teamId, String sprint) {
-        // later todo
-        // LocalDateTime startDate = getSprintStartDate(sprint);
-        // LocalDateTime endDate = getSprintEndDate(sprint);
-
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = LocalDateTime.now();
-
-
-        switch (sprint.toLowerCase()) {
-            case "current":
-                startDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "last":
-                startDate = LocalDateTime.now().minusWeeks(6);
-                endDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "none":
-            default:
-                startDate = null;
-                endDate = null;
-                break;
-        }
-
-
+    public List<WorkKindInsightDTO> getWorkKindInsightsByUserAndTeam(@ValidateUserIdParam Integer userId, Integer teamId, Integer sprintId) {
         List<Object[]> userWorkKinds;
         List<Object[]> teamWorkKinds;
 
-        if (startDate != null) {
-            userWorkKinds = insightsRepository.findTopWorkKindsByUserAndDateRange(userId, startDate, endDate);
-            teamWorkKinds = insightsRepository.findTopWorkKindsByTeamAndDateRange(teamId, userId, startDate, endDate);
+        if (sprintId == 0) {
+            userWorkKinds = insightsRepository.findTopWorkKindsByUser(userId, teamId);
+            teamWorkKinds = insightsRepository.findTopWorkKindsByTeam(teamId);
         } else {
-            userWorkKinds = insightsRepository.findTopWorkKindsByUser(userId);
-            teamWorkKinds = insightsRepository.findTopWorkKindsByTeam(teamId, userId);
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
+
+            LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
+            LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
+
+            userWorkKinds = insightsRepository.findTopWorkKindsByUserAndDateRange(userId, teamId, startDate, endDate);
+            teamWorkKinds = insightsRepository.findTopWorkKindsByTeamAndDateRange(teamId, startDate, endDate);
         }
 
         List<WorkKindInsightDTO> userWorkKindInsights = userWorkKinds.stream()
                 .map(workKind -> workKindInsightMapper.toUserDTO(
                         (Integer) workKind[0],
                         (String) workKind[1],
-                        (Double) workKind[2],
-                        (Long) workKind[3]))
+                        ((Number) workKind[2]).intValue(),
+                        ((Number) workKind[3]).intValue()))
                 .collect(Collectors.toList());
 
         List<WorkKindInsightDTO> teamWorkKindInsights = teamWorkKinds.stream()
                 .map(workKind -> workKindInsightMapper.toTeamDTO(
                         (Integer) workKind[0],
                         (String) workKind[1],
-                        (Double) workKind[2],
-                        (Long) workKind[3]))
+                        ((Number) workKind[2]).intValue(),
+                        ((Number) workKind[3]).intValue()))
                 .collect(Collectors.toList());
 
-        // Merge user and team insights into a single list
         return mergeUserAndTeamWorkKindInsights(userWorkKindInsights, teamWorkKindInsights);
     }
 
-    // Top 5 work kinds by user and team
     private List<WorkKindInsightDTO> mergeUserAndTeamWorkKindInsights(List<WorkKindInsightDTO> userWorkKindInsights, List<WorkKindInsightDTO> teamWorkKindInsights) {
         Map<Integer, WorkKindInsightDTO> merged = new HashMap<>();
 
@@ -193,10 +157,10 @@ public class InsightsService {
                     return new WorkKindInsightDTO(
                             userDto.getWorkKindId(),
                             userDto.getWorkKindName(),
-                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0.0,
-                            userDto.getUserCount() != null ? userDto.getUserCount() : 0L,
-                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0.0,
-                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0L
+                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0,
+                            userDto.getUserCount() != null ? userDto.getUserCount() : 0,
+                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0,
+                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0
                     );
                 });
             }
@@ -212,35 +176,22 @@ public class InsightsService {
     ///// Emotion insights
 
     @Transactional(readOnly = true)
-    public List<EmotionInsightDTO> getEmotionInsightsByUserAndTeam(Integer userId, Integer teamId, String sprint) {
-        // todo temp
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = LocalDateTime.now();
-
-        switch (sprint.toLowerCase()) {
-            case "current":
-                startDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "last":
-                startDate = LocalDateTime.now().minusWeeks(6);
-                endDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "none":
-            default:
-                startDate = null;
-                endDate = null;
-                break;
-        }
-
+    public List<EmotionInsightDTO> getEmotionInsightsByUserAndTeam(Integer userId, Integer teamId, Integer sprintId) {
         List<Object[]> userEmotions;
         List<Object[]> teamEmotions;
 
-        if (startDate != null) {
-            userEmotions = insightsRepository.findTopEmotionsByUserAndDateRange(userId, startDate, endDate);
-            teamEmotions = insightsRepository.findTopEmotionsByTeamAndDateRange(teamId, userId, startDate, endDate);
-        } else {
+        if (sprintId == 0) {
             userEmotions = insightsRepository.findTopEmotionsByUser(userId);
-            teamEmotions = insightsRepository.findTopEmotionsByTeam(teamId, userId);
+            teamEmotions = insightsRepository.findTopEmotionsByTeam(teamId);
+        } else {
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
+
+            LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
+            LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
+
+            userEmotions = insightsRepository.findTopEmotionsByUserAndDateRange(userId, startDate, endDate);
+            teamEmotions = insightsRepository.findTopEmotionsByTeamAndDateRange(teamId, startDate, endDate);
         }
 
         List<EmotionInsightDTO> userEmotionInsights = userEmotions.stream()
@@ -284,72 +235,76 @@ public class InsightsService {
                 .collect(Collectors.toList());
     }
 
-    /////  Workkind count per day vs. average happiness
 
-    @Transactional(readOnly = true)
-    public List<WorkKindCountPerDayInsightDTO> getWorkKindCountPerDayInsights(Integer userId, Integer teamId, String sprint) {
-        // todo
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = LocalDateTime.now();
+    /////  Workkind count per day vs. Average happiness
 
-        switch (sprint.toLowerCase()) {
-            case "current":
-                startDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "last":
-                startDate = LocalDateTime.now().minusWeeks(6);
-                endDate = LocalDateTime.now().minusWeeks(3);
-                break;
-            case "none":
-            default:
-                startDate = null;
-                endDate = null;
-                break;
+    public List<WorkKindCountPerDayInsightDTO> calculateAverageHappinessPerWorkKindCount(Integer userId, Integer sprintId, Integer teamId) {
+        List<Object[]> workKindData;
+        List<Object[]> teamWorkKindData;
+
+        if (sprintId == 0) {
+            workKindData = insightsRepository.findWorkKindCountPerDayForUserNoDateRange(userId, teamId);
+            teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayNoDateRange(teamId);
+        } else {
+            SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
+
+            LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
+            LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
+
+            workKindData = insightsRepository.findWorkKindCountPerDayForUserWithDateRange(userId, teamId, startDate, endDate);
+            teamWorkKindData = insightsRepository.findTeamWorkKindCountPerDayWithDateRange(teamId, startDate, endDate);
         }
 
-        List<Object[]> userResults = startDate != null
-                ? insightsRepository.findUserWorkKindCountAndHappinessByDateRange(userId, startDate, endDate)
-                : insightsRepository.findUserWorkKindCountAndHappiness(userId);
+        Map<Integer, List<Double>> userHappinessScoresMap = new HashMap<>();
+        Map<Integer, Double> teamHappinessScoresMap = new HashMap<>();
 
-        List<Object[]> teamResults = startDate != null
-                ? insightsRepository.findTeamWorkKindCountAndHappinessByDateRange(teamId, userId, startDate, endDate)
-                : insightsRepository.findTeamWorkKindCountAndHappiness(teamId, userId);
+        for (Object[] entry : workKindData) {
+            Object dateObj = entry[0];
+            int workKindCount = ((Number) entry[1]).intValue();
 
-        Map<Integer, List<Double>> userHappinessByWorkKindCount = new HashMap<>();
-        for (Object[] row : userResults) {
-            Integer workKindCount = ((Number) row[0]).intValue();
-            Double userAverageHappiness = ((Number) row[1]).doubleValue();
+            LocalDate dateTime = convertToLocalDate(dateObj);
 
-            userHappinessByWorkKindCount.computeIfAbsent(workKindCount, k -> new ArrayList<>()).add(userAverageHappiness);
+            Double averageHappinessScore = happinessSurveyRepository.findAverageScoreByUserIdAndDate(userId, dateTime);
+
+            if (averageHappinessScore != null) {
+                userHappinessScoresMap.computeIfAbsent(Math.toIntExact(workKindCount), k -> new ArrayList<>()).add(averageHappinessScore);
+            }
+        }
+        // Calculate daily average happiness scores for the team
+        for (Object[] entry : teamWorkKindData) {
+            Integer workKindCount = ((Number) entry[1]).intValue();
+            Double teamAverageHappiness = ((Number) entry[2]).doubleValue();
+            teamHappinessScoresMap.put(workKindCount, teamAverageHappiness);
         }
 
-        Map<Integer, List<Double>> teamHappinessByWorkKindCount = new HashMap<>();
-        for (Object[] row : teamResults) {
-            Integer workKindCount = ((Number) row[0]).intValue();
-            Double teamAverageHappiness = ((Number) row[1]).doubleValue();
+        List<WorkKindCountPerDayInsightDTO> result = new ArrayList<>();
+        for (Map.Entry<Integer, List<Double>> entry : userHappinessScoresMap.entrySet()) {
+            Integer workKindCount = entry.getKey();
+            List<Double> scores = entry.getValue();
 
-            teamHappinessByWorkKindCount.computeIfAbsent(workKindCount, k -> new ArrayList<>()).add(teamAverageHappiness);
+            Integer userAverageHappiness = (int) Math.round(scores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0));
+            Integer teamAverageHappiness = (int) Math.round(teamHappinessScoresMap.getOrDefault(workKindCount, 0.0));
+
+            WorkKindCountPerDayInsightDTO dto = new WorkKindCountPerDayInsightDTO(workKindCount, userAverageHappiness, teamAverageHappiness);
+            result.add(dto);
         }
-
-        // Calculate averages for each work kind count
-        List<WorkKindCountPerDayInsightDTO> insights = new ArrayList<>();
-        int maxWorkKindCount = getMaxWorkKindCountForTeam(teamId);
-
-        for (int i = 1; i <= maxWorkKindCount; i++) {
-            double userAverageHappiness = userHappinessByWorkKindCount.containsKey(i) ?
-                    userHappinessByWorkKindCount.get(i).stream().mapToDouble(Double::doubleValue).average().orElse(0.0) : 0.0;
-
-            double teamAverageHappiness = teamHappinessByWorkKindCount.containsKey(i) ?
-                    teamHappinessByWorkKindCount.get(i).stream().mapToDouble(Double::doubleValue).average().orElse(0.0) : 0.0;
-
-            insights.add(new WorkKindCountPerDayInsightDTO(i, userAverageHappiness, teamAverageHappiness));
-        }
-
-        return insights;
+        return result;
     }
 
-    private int getMaxWorkKindCountForTeam(Integer teamId) {
-        return workKindSurveyRepository.findDistinctWorkKindCountByTeamId(teamId);
+    private LocalDate convertToLocalDate(Object dateObj) {
+        return switch (dateObj) {
+            case LocalDate localDate -> localDate;
+            case LocalDateTime localDateTime -> localDateTime.toLocalDate();
+            case java.sql.Date date -> date.toLocalDate();
+            case java.sql.Timestamp timestamp -> timestamp.toLocalDateTime().toLocalDate();
+            case Instant instant -> instant.atZone(ZoneId.systemDefault()).toLocalDate();
+            case null, default -> {
+                assert dateObj != null;
+                throw new IllegalArgumentException("Unsupported date type: " + dateObj.getClass().getName());
+            }
+        };
     }
+
 
 }
