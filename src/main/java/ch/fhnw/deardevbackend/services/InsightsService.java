@@ -66,6 +66,7 @@ public class InsightsService {
             userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
             teamAverages = insightsRepository.findTeamDailyAverages(teamId);
         } else {
+            // todo make sure the sprint belongs to the team
             SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
 

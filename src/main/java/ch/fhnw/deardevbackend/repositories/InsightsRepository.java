@@ -13,6 +13,8 @@ import java.util.List;
 @Repository
 public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integer> {
 
+    // todo review & refactor queries
+
     // team overall happiness - no daterange
     @Query("SELECT CAST(submitted AS DATE) as day, AVG(score) as average " +
             "FROM HappinessSurvey " +
@@ -127,7 +129,7 @@ public interface InsightsRepository extends JpaRepository<HappinessSurvey, Integ
             "ORDER BY teamCount DESC")
     List<Object[]> findTopEmotionsByTeam(@Param("teamId") Integer teamId);
 
-// todo bugs with this counter queries
+
     // Query to get the distinct workkind count and list of workkind IDs for a specific user on each day, no date range
     @Query("SELECT DATE_TRUNC('day', wks.submitted) AS dateTime, " +
             "COUNT(DISTINCT wks.workKindId) AS workKindCount " +
