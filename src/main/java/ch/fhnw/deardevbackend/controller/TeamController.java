@@ -2,10 +2,7 @@ package ch.fhnw.deardevbackend.controller;
 
 import ch.fhnw.deardevbackend.controller.exceptions.ErrorResponse;
 import ch.fhnw.deardevbackend.controller.exceptions.YappiException;
-import ch.fhnw.deardevbackend.dto.CreateTeamDTO;
-import ch.fhnw.deardevbackend.dto.JoinTeamDTO;
-import ch.fhnw.deardevbackend.dto.TeamAndRoleDTO;
-import ch.fhnw.deardevbackend.dto.TeamConfigDTO;
+import ch.fhnw.deardevbackend.dto.*;
 import ch.fhnw.deardevbackend.entities.Team;
 import ch.fhnw.deardevbackend.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +50,11 @@ public class TeamController {
     @ExceptionHandler(YappiException.class)
     public ResponseEntity<ErrorResponse> handleYappiException(YappiException ex) {
         return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @GetMapping("/user/{userId}/sprints")
+    public ResponseEntity<List<TeamWithSprintsDTO>> getTeamsAndSprintsForUser(@PathVariable Integer userId) {
+        List<TeamWithSprintsDTO> teamsWithSprints = teamService.getTeamsAndSprintsForUser(userId);
+        return ResponseEntity.ok(teamsWithSprints);
     }
 }

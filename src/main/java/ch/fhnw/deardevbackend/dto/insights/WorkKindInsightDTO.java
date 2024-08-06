@@ -8,8 +8,8 @@ import lombok.Data;
 public class WorkKindInsightDTO {
     private Integer workKindId;
     private String workKindName;
-    private Double userAverage;
-    private Long userCount;
-    private Double teamAverage;
-    private Long teamCount;
+    private Integer userAverage;
+    private Integer userCount;
+    private Integer teamAverage;
+    private Integer teamCount;
 }

@@ -50,10 +50,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Integer id, String username) {
+    public void updateUser(Integer id, String username, String githubUserName) {
         User user = userRepository.findById(id).orElseThrow(() -> new OpenApiResourceNotFoundException("User not found"));
         if (user != null) {
             user.setUsername(username);
+            user.setGithubUserName(githubUserName);
             userRepository.save(user);
         } else {
             throw new IllegalArgumentException("User not found");

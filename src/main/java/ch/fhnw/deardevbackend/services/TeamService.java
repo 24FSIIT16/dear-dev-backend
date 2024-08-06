@@ -6,10 +6,8 @@ import ch.fhnw.deardevbackend.entities.*;
 import ch.fhnw.deardevbackend.mapper.CreateTeamMapper;
 import ch.fhnw.deardevbackend.mapper.TeamAndRoleMapper;
 import ch.fhnw.deardevbackend.mapper.TeamConfigMapper;
-import ch.fhnw.deardevbackend.repositories.TeamConfigRepository;
-import ch.fhnw.deardevbackend.repositories.TeamMemberRepository;
-import ch.fhnw.deardevbackend.repositories.TeamRepository;
-import ch.fhnw.deardevbackend.repositories.WorkKindRepository;
+import ch.fhnw.deardevbackend.mapper.TeamWithSprintsMapper;
+import ch.fhnw.deardevbackend.repositories.*;
 import ch.fhnw.deardevbackend.util.TeamCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +33,15 @@ public class TeamService {
     @Autowired
     private WorkKindRepository workKindRepository;
     @Autowired
+    private final SprintConfigRepository sprintConfigRepository;
+    @Autowired
     private CreateTeamMapper createTeamMapper;
     @Autowired
     private TeamAndRoleMapper teamAndRoleMapper;
     @Autowired
     private TeamConfigMapper teamConfigMapper;
+    @Autowired
+    private TeamWithSprintsMapper teamWithSprintsMapper;
 
     public List<TeamAndRoleDTO> getTeamsAndRoleByUserId(Integer userId) {
         List<TeamMember> teamMembers = teamMemberRepository.findByUserId(userId);
@@ -80,7 +82,7 @@ public class TeamService {
                 .active(true)
                 .build();
         teamMemberRepository.save(teamMember);
-        
+
         return savedTeam;
     }
 
@@ -180,5 +182,18 @@ public class TeamService {
                 new WorkKind(null, "Scrum Events", teamId)
         );
         return workKindRepository.saveAll(defaultWorkKinds);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamWithSprintsDTO> getTeamsAndSprintsForUser(Integer userId) {
+        List<Integer> teamIds = teamMemberRepository.findTeamIdByUserId(userId);
+        List<Team> teams = teamRepository.findAllById(teamIds);
+        List<SprintStatus> relevantStatuses = List.of(SprintStatus.IN_PROGRESS, SprintStatus.COMPLETED);
+
+        return teams.stream().map(team -> {
+            List<SprintConfig> sprints = sprintConfigRepository.findByTeamAndStatusIn(team, relevantStatuses);
+            List<SprintDTO> sprintDTOs = teamWithSprintsMapper.toSprintDtoList(sprints);
+            return teamWithSprintsMapper.toDto(team, sprintDTOs);
+        }).collect(Collectors.toList());
     }
 }

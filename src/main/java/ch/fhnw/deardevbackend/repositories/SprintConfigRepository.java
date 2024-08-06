@@ -2,6 +2,7 @@ package ch.fhnw.deardevbackend.repositories;
 
 import ch.fhnw.deardevbackend.entities.SprintConfig;
 import ch.fhnw.deardevbackend.entities.SprintStatus;
+import ch.fhnw.deardevbackend.entities.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,11 @@ public interface SprintConfigRepository extends JpaRepository<SprintConfig, Inte
     List<SprintConfig> findAllByCreatedBy(Integer createdBy);
 
     List<SprintConfig> findByCreatedByAndStatusAndStartDateAfter(Integer createdBy, SprintStatus status, LocalDate startDate);
+
+    Optional<SprintConfig> findById(Integer id);
+
+    List<SprintConfig> findByTeamAndStatusIn(Team team, List<SprintStatus> statuses);
+
 
     @Query(value = "SELECT s.end_date FROM sprint_config s " +
             "WHERE s.team_id IN (SELECT tm.team_id FROM team_member tm WHERE tm.user_id = :userId) " +

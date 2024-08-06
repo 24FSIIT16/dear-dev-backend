@@ -17,5 +17,6 @@ public interface UserMapper {
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "provider", target = "loginProvider")
     @Mapping(source = "hasTeam", target = "hasTeam")
+    @Mapping(source = "user.githubUserName", target = "githubUserName")
     UserDTO toDto(User user, String provider, Boolean hasTeam);
 }
