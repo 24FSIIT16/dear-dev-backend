@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,6 +24,9 @@ public class TeamMember {
 
     @Column(name = "team_id")
     private Integer teamId;
+
+    @Column(name = "joined_at")
+    private LocalDateTime joinedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
