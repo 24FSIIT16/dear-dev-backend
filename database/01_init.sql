@@ -60,11 +60,12 @@ CREATE TABLE team
 
 CREATE TABLE team_member
 (
-    id      SERIAL,
-    user_id INTEGER              NOT NULL,
-    team_id INTEGER              NOT NULL,
-    role    VARCHAR(8)           NOT NULL,
-    active  BOOLEAN DEFAULT TRUE NOT NULL,
+    id        SERIAL,
+    user_id   INTEGER              NOT NULL,
+    team_id   INTEGER              NOT NULL,
+    joined_at TIMESTAMPTZ,
+    role      VARCHAR(8)           NOT NULL,
+    active    BOOLEAN DEFAULT TRUE NOT NULL,
 
     CONSTRAINT pk_team_member PRIMARY KEY (id),
     CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (id),
