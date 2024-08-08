@@ -68,7 +68,7 @@ CREATE TABLE team_member
     active    BOOLEAN DEFAULT TRUE NOT NULL,
 
     CONSTRAINT pk_team_member PRIMARY KEY (id),
-    CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_team_member_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_team_member_team FOREIGN KEY (team_id) REFERENCES team (id),
     CONSTRAINT uq_team_member UNIQUE (user_id, team_id, role)
 );
