@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,6 +80,7 @@ public class TeamService {
                 .userId(teamDTO.getUserId())
                 .teamId(savedTeam.getId())
                 .role(Role.ADMIN)
+                .joinedAt(LocalDateTime.now())
                 .active(true)
                 .build();
         teamMemberRepository.save(teamMember);
@@ -95,6 +97,7 @@ public class TeamService {
                     .userId(joinTeamDTO.getUserId())
                     .teamId(team.getId())
                     .role(Role.MEMBER)
+                    .joinedAt(LocalDateTime.now())
                     .active(true)
                     .build();
 

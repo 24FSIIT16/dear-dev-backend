@@ -24,4 +24,6 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Integer>
 
     @Query("SELECT tm.teamId FROM TeamMember tm WHERE tm.userId = :userId AND tm.active = true")
     List<Integer> findTeamIdByUserId(@Param("userId") Integer userId);
+
+    List<TeamMember> findByTeamId(Integer teamId);
 }

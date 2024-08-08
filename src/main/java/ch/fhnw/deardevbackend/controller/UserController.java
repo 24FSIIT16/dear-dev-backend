@@ -36,4 +36,9 @@ public class UserController {
     public void updateUser(@RequestBody UserDTO request) {
         userService.updateUser(request.getId(), request.getUsername(), request.getGithubUserName());
     }
+
+    @DeleteMapping("user/delete/{id}")
+    public void deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+    }
 }

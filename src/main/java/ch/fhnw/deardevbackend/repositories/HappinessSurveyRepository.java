@@ -2,9 +2,11 @@ package ch.fhnw.deardevbackend.repositories;
 
 import ch.fhnw.deardevbackend.entities.HappinessSurvey;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,5 +45,8 @@ public interface HappinessSurveyRepository extends JpaRepository<HappinessSurvey
     @Query("SELECT AVG(h.score) FROM HappinessSurvey h WHERE h.userId = :userId AND DATE(h.submitted) = :date")
     Double findAverageScoreByUserIdAndDate(Integer userId, LocalDate date);
 
-
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM HappinessSurvey h WHERE h.userId = :userId")
+    void deleteByUserId(Integer userId);
 }
