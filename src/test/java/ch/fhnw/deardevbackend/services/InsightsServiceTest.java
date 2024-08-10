@@ -174,4 +174,57 @@ public class InsightsServiceTest {
         verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(mockDate));
     }
 
+    @Test
+    void calculateAverageHappinessPerWorkKindCount_multipleSurveys() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+
+        LocalDate date1 = LocalDate.of(2024, 7, 27);
+        LocalDate date2 = LocalDate.of(2024, 7, 28);
+        LocalDate date3 = LocalDate.of(2024, 7, 29);
+
+        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any()))
+                .thenReturn(Arrays.asList(
+                        new Object[]{date1, 3},
+                        new Object[]{date2, 3},
+                        new Object[]{date3, 3}
+                ));
+
+        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any()))
+                .thenReturn(Arrays.asList(
+                        new Object[]{date1, 3, 4},
+                        new Object[]{date2, 3, 6},
+                        new Object[]{date3, 3, 5}
+                ));
+
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date1)))
+                .thenReturn(5.0);
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date2)))
+                .thenReturn(7.0);
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date3)))
+                .thenReturn(6.0);
+
+        // Run the service method
+        List<WorkKindCountPerDayInsightDTO> result = insightsService.calculateAverageHappinessPerWorkKindCount(userId, sprintId, teamId);
+
+        // Assertions to verify the results
+        assertNotNull(result);
+        assertEquals(1, result.size());  // We expect a single work kind count group
+        assertEquals(3, result.get(0).getWorkKindCount());  // Work kind count is 3
+
+        // The user average happiness should be (5.0 + 7.0 + 6.0) / 3 = 6.0
+        assertEquals(6, result.get(0).getUserAverageHappiness());
+
+        // The team average happiness should be (4.0 + 6.0 + 5.0) / 3 = 5.0
+        assertEquals(5, result.get(0).getTeamAverageHappiness());
+
+        // Verify that the repository methods were called correctly
+        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any());
+        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date1));
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date2));
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date3));
+    }
+
+
+
 }
