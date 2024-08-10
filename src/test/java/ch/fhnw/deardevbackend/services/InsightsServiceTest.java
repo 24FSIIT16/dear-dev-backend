@@ -1,422 +1,321 @@
-//package ch.fhnw.deardevbackend.services;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//import ch.fhnw.deardevbackend.dto.insights.HappinessInsightDTO;
-//import ch.fhnw.deardevbackend.dto.insights.InsightDTO;
-//import ch.fhnw.deardevbackend.dto.insights.WorkKindCountPerDayInsightDTO;
-//import ch.fhnw.deardevbackend.dto.insights.WorkKindInsightDTO;
-//import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
-//import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
-//import ch.fhnw.deardevbackend.repositories.InsightsRepository;
-//import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
-//import ch.fhnw.deardevbackend.repositories.WorkKindSurveyRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.List;
-//
-//@ExtendWith(MockitoExtension.class)
-//public class InsightsServiceTest {
-//
-//    @InjectMocks
-//    private InsightsService insightsService;
-//
-//    @Mock
-//    private InsightsRepository insightsRepository;
-//
-//    @Mock
-//    private HappinessSurveyRepository happinessSurveyRepository;
-//
-//    @Mock
-//    private WorkKindSurveyRepository workKindSurveyRepository;
-//
-//    @Mock
-//    private HappinessInsightMapper happinessInsightMapper;
-//
-//    @Mock
-//    private WorkKindInsightMapper workKindInsightMapper;
-//
-//    private Integer userId;
-//    private List<Object[]> userAverages;
-//    private List<Object[]> teamAverages;
-//
-//    private List<Object[]> userWorkKinds;
-//    private List<Object[]> teamWorkKinds;
-//    private List<Object[]> userWorkKindCountAndHappiness;
-//    private List<Object[]> teamWorkKindCountAndHappiness;
-//    private WorkKindInsightDTO workKindInsightDTO1;
-//    private WorkKindInsightDTO workKindInsightDTO2;
-//    private WorkKindInsightDTO workKindInsightDTO3;
-//    private WorkKindInsightDTO workKindInsightDTO4;
-//
-//    @BeforeEach
-//    void setUp() {
-//        userId = 1;
-//
-//        userAverages = Arrays.asList(
-//                new Object[]{"2024-07-27", 5.0},
-//                new Object[]{"2024-07-28", 5.0},
-//                new Object[]{"2024-07-29", 6.0}
-//        );
-//        teamAverages = Arrays.asList(
-//                new Object[]{"2024-07-27", 4.0},
-//                new Object[]{"2024-07-28", 2.0},
-//                new Object[]{"2024-07-29", 3.0}
-//        );
-//
-//        userWorkKinds = Arrays.asList(
-//                new Object[]{1, "Development", 4.5, 10L},
-//                new Object[]{2, "Testing", 3.5, 5L}
-//        );
-//        teamWorkKinds = Arrays.asList(
-//                new Object[]{1, "Development", 4.0, 8L},
-//                new Object[]{2, "Testing", 3.0, 6L}
-//        );
-//
-//        userWorkKindCountAndHappiness = Arrays.asList(
-//                new Object[]{1, 4.0},
-//                new Object[]{2, 5.0},
-//                new Object[]{3, 6.0}
-//        );
-//        teamWorkKindCountAndHappiness = Arrays.asList(
-//                new Object[]{1, 3.0},
-//                new Object[]{2, 2.5},
-//                new Object[]{3, 4.0}
-//        );
-//
-////        workKindInsightDTO1 = new WorkKindInsightDTO(1, "Development", 4, 10, 0, 0);
-////        workKindInsightDTO2 = new WorkKindInsightDTO(2, "Testing", 3.5, 5L, 0.0, 0);
-////        workKindInsightDTO3 = new WorkKindInsightDTO(1, "Development", 0.0, 0L, 4.0, 8L);
-////        workKindInsightDTO4 = new WorkKindInsightDTO(2, "Testing", 0.0, 0L, 3.0, 6L);
-//    }
-//
-//
-///*    @Test
-//    void getInsightsByTeamAndSprint() {
-//        Integer teamId = 1;
-//        String sprint = "current";
-//
-//        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(userAverages);
-//        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any())).thenReturn(teamAverages);
-//        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
-//        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
-//        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
-//
-//*//*
-//        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), any(), any())).thenReturn(userWorkKinds);
-//*//*
-//        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any())).thenReturn(teamWorkKinds);
-//        when(workKindInsightMapper.toUserDTO(1, "Development", 4.5, 10L)).thenReturn(workKindInsightDTO1);
-//        when(workKindInsightMapper.toUserDTO(2, "Testing", 3.5, 5L)).thenReturn(workKindInsightDTO2);
-//        when(workKindInsightMapper.toTeamDTO(1, "Development", 4.0, 8L)).thenReturn(workKindInsightDTO3);
-//        when(workKindInsightMapper.toTeamDTO(2, "Testing", 3.0, 6L)).thenReturn(workKindInsightDTO4);
-//
-//        // Mocking for the new method
-//        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(userWorkKindCountAndHappiness);
-//        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any())).thenReturn(teamWorkKindCountAndHappiness);
-//
-//        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
-//
-//        assertNotNull(result);
-//        assertNotNull(result.getHappinessInsights());
-//        assertNotNull(result.getWorkKindInsights());
-//        assertNotNull(result.getWorkKindCountPerDayInsights());
-//        assertEquals(3, result.getHappinessInsights().size());
-//        assertEquals(2, result.getWorkKindInsights().size());
-//        assertEquals(3, result.getWorkKindCountPerDayInsights().size());
-//
-//        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
-//        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
-//
-//*//*
-//        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), any(), any());
-//*//*
-//        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any());
-//        verify(workKindInsightMapper, times(2)).toUserDTO(anyInt(), anyString(), anyDouble(), anyLong());
-//        verify(workKindInsightMapper, times(2)).toTeamDTO(anyInt(), anyString(), anyDouble(), anyLong());
-//
-//        // New verifications
-//        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
-//    }*/
-//
-//
-////    @Test
-////    void getHappinessInsightsByTeam() {
-////        Integer teamId = 1;
-////        String sprint = "current";
-////
-////        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(userAverages);
-////        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any())).thenReturn(teamAverages);
-////        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0)).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
-////        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0)).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
-////        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0)).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
-////
-////        List<HappinessInsightDTO> result = insightsService.getHappinessInsightsByTeam(userId, teamId, sprint);
-////
-////        assertNotNull(result);
-////        assertEquals(3, result.size());
-////
-////        assertEquals("2024-07-27", result.get(0).getDay());
-////        assertEquals(5.0, result.get(0).getUserAverage());
-////        assertEquals(4.0, result.get(0).getTeamAverage());
-////
-////        assertEquals("2024-07-28", result.get(1).getDay());
-////        assertEquals(5.0, result.get(1).getUserAverage());
-////        assertEquals(2.0, result.get(1).getTeamAverage());
-////
-////        assertEquals("2024-07-29", result.get(2).getDay());
-////        assertEquals(6.0, result.get(2).getUserAverage());
-////        assertEquals(3.0, result.get(2).getTeamAverage());
-////
-////        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
-////        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
-////    }
-////
-////
-////    @Test
-////    void getInsightsByTeamAndSprint_noData() {
-////        Integer teamId = 1;
-////        String sprint = "current";
-////
-////        // Mock repository methods to return empty lists
-////        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-//////        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-////
-////        // Execute the service method
-////        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
-////
-////        // Assertions to check for empty results
-////        assertNotNull(result);
-////        assertTrue(result.getHappinessInsights().isEmpty(), "Happiness insights should be empty");
-////        assertTrue(result.getWorkKindInsights().isEmpty(), "Work kind insights should be empty");
-////        assertTrue(result.getWorkKindCountPerDayInsights().isEmpty(), "Work kind count per day insights should be empty");
-////
-////        // Verify that the repository methods were called
-////        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
-//////        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any());
-////        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
-////    }
-//
-///*    @Test
-//    void getInsightsByTeamAndSprint_multipleTeams() {
-//        Integer teamId1 = 1;
-//        Integer teamId2 = 2;
-//        String sprint = "current";
-//
-//        List<Object[]> userAveragesTeam1 = Arrays.asList(
-//                new Object[]{"2024-07-27", 5.0},
-//                new Object[]{"2024-07-28", 5.0},
-//                new Object[]{"2024-07-29", 6.0}
-//        );
-//
-//        List<Object[]> teamAveragesTeam1 = Arrays.asList(
-//                new Object[]{"2024-07-27", 4.0},
-//                new Object[]{"2024-07-28", 2.0},
-//                new Object[]{"2024-07-29", 3.0}
-//        );
-//
-//        List<Object[]> userAveragesTeam2 = Arrays.asList(
-//                new Object[]{"2024-07-27", 6.0},
-//                new Object[]{"2024-07-28", 7.0},
-//                new Object[]{"2024-07-29", 5.5}
-//        );
-//
-//        List<Object[]> teamAveragesTeam2 = Arrays.asList(
-//                new Object[]{"2024-07-27", 5.5},
-//                new Object[]{"2024-07-28", 6.0},
-//                new Object[]{"2024-07-29", 4.0}
-//        );
-//
-//        List<Object[]> userWorkKindCountAndHappinessTeam1 = Arrays.asList(
-//                new Object[]{1, 4.0},
-//                new Object[]{2, 5.0},
-//                new Object[]{3, 6.0}
-//        );
-//
-//        List<Object[]> teamWorkKindCountAndHappinessTeam1 = Arrays.asList(
-//                new Object[]{1, 3.0},
-//                new Object[]{2, 2.5},
-//                new Object[]{3, 4.0}
-//        );
-//
-//        List<Object[]> userWorkKindCountAndHappinessTeam2 = Arrays.asList(
-//                new Object[]{1, 5.0},
-//                new Object[]{2, 6.0},
-//                new Object[]{3, 7.0}
-//        );
-//
-//        List<Object[]> teamWorkKindCountAndHappinessTeam2 = Arrays.asList(
-//                new Object[]{1, 4.5},
-//                new Object[]{2, 5.0},
-//                new Object[]{3, 6.0}
-//        );
-//
-//        // Setup mocks for team 1
-//        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
-//                .thenReturn(userAveragesTeam1);
-//        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId1), any(), any()))
-//                .thenReturn(teamAveragesTeam1);
-//        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0))
-//                .thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 4.0));
-//        when(happinessInsightMapper.toDTO("2024-07-28", 5.0, 2.0))
-//                .thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 2.0));
-//        when(happinessInsightMapper.toDTO("2024-07-29", 6.0, 3.0))
-//                .thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 3.0));
-//
-//        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(userWorkKindCountAndHappinessTeam1);
-//        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId1), any(), any())).thenReturn(teamWorkKindCountAndHappinessTeam1);
-//
-//        // Execute the service method for team 1
-//        InsightDTO resultTeam1 = insightsService.getInsightsByTeamAndSprint(userId, teamId1, sprint);
-//
-//        // Verify the results for team 1
-//        assertNotNull(resultTeam1);
-//        assertEquals(3, resultTeam1.getHappinessInsights().size());
-//        assertEquals(3, resultTeam1.getWorkKindCountPerDayInsights().size());
-//
-//        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId1), any(), any());
-//        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
-//        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId1), any(), any());
-//
-//        // Reset mocks for team 2
-//        reset(happinessSurveyRepository, insightsRepository, happinessInsightMapper, workKindSurveyRepository);
-//
-//        // Setup mocks for team 2
-//        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
-//                .thenReturn(userAveragesTeam2);
-//        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId2), any(), any()))
-//                .thenReturn(teamAveragesTeam2);
-//        when(happinessInsightMapper.toDTO("2024-07-27", 6.0, 5.5))
-//                .thenReturn(new HappinessInsightDTO("2024-07-27", 6.0, 5.5));
-//        when(happinessInsightMapper.toDTO("2024-07-28", 7.0, 6.0))
-//                .thenReturn(new HappinessInsightDTO("2024-07-28", 7.0, 6.0));
-//        when(happinessInsightMapper.toDTO("2024-07-29", 5.5, 4.0))
-//                .thenReturn(new HappinessInsightDTO("2024-07-29", 5.5, 4.0));
-//
-//        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(userWorkKindCountAndHappinessTeam2);
-//        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId2), any(), any())).thenReturn(teamWorkKindCountAndHappinessTeam2);
-//
-//        // Execute the service method for team 2
-//        InsightDTO resultTeam2 = insightsService.getInsightsByTeamAndSprint(userId, teamId2, sprint);
-//
-//        // Verify the results for team 2
-//        assertNotNull(resultTeam2);
-//        assertEquals(3, resultTeam2.getHappinessInsights().size());
-//        assertEquals(3, resultTeam2.getWorkKindCountPerDayInsights().size());
-//
-//        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId2), any(), any());
-//        verify(happinessInsightMapper, times(3)).toDTO(anyString(), anyDouble(), anyDouble());
-//        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId2), any(), any());
-//    }*/
-//
-//
-////    @Test
-////    void getInsightsByTeamAndSprint_emptyTeamInsights() {
-////        Integer teamId = 1;
-////        String sprint = "current";
-////
-////        // Mock repository methods to return data for the user but empty for the team
-////        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any())).thenReturn(userAverages);
-////        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-//////        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-////
-////        // Mock happinessInsightMapper to return DTOs for user happiness
-////        when(happinessInsightMapper.toDTO(eq("2024-07-27"), eq(5.0), eq(0.0))).thenReturn(new HappinessInsightDTO("2024-07-27", 5.0, 0.0));
-////        when(happinessInsightMapper.toDTO(eq("2024-07-28"), eq(5.0), eq(0.0))).thenReturn(new HappinessInsightDTO("2024-07-28", 5.0, 0.0));
-////        when(happinessInsightMapper.toDTO(eq("2024-07-29"), eq(6.0), eq(0.0))).thenReturn(new HappinessInsightDTO("2024-07-29", 6.0, 0.0));
-////
-////        // Execute the service method
-////        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprint);
-////
-////        // Assertions to check for empty results
-////        assertNotNull(result);
-////        assertEquals(3, result.getHappinessInsights().size(), "User happiness insights should not be empty");
-////        assertTrue(result.getWorkKindInsights().isEmpty(), "Work kind insights should be empty");
-////        assertTrue(result.getWorkKindCountPerDayInsights().isEmpty(), "Work kind count per day insights should be empty");
-////
-////        // Verify that the repository methods were called
-////        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
-//////        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any());
-////        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
-////    }
-//
-///*
-//    @Test
-//    void getWorkKindCountPerDayInsights() {
-//        Integer teamId = 1;
-//        String sprint = "current";
-//
-//        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(userWorkKindCountAndHappiness);
-//        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any())).thenReturn(teamWorkKindCountAndHappiness);
-//
-//        List<WorkKindCountPerDayInsightDTO> result = insightsService.calculateAverageHappinessPerWorkKindCount(userId, sprint, teamId);
-//
-//        assertNotNull(result);
-//        assertEquals(3, result.size());
-//
-//        assertEquals(1, result.get(0).getWorkKindCount());
-//        assertEquals(4.0, result.get(0).getUserAverageHappiness());
-//        assertEquals(3.0, result.get(0).getTeamAverageHappiness());
-//
-//        assertEquals(2, result.get(1).getWorkKindCount());
-//        assertEquals(5.0, result.get(1).getUserAverageHappiness());
-//        assertEquals(2.5, result.get(1).getTeamAverageHappiness());
-//
-//        assertEquals(3, result.get(2).getWorkKindCount());
-//        assertEquals(6.0, result.get(2).getUserAverageHappiness());
-//        assertEquals(4.0, result.get(2).getTeamAverageHappiness());
-//
-//        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-//        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
-//    }*/
-//
-////    @Test
-////    void getWorkKindCountPerDayInsights_noData() {
-////        Integer teamId = 1;
-////        String sprint = "current";
-////
-////        // Mock repository methods to return empty lists
-////        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any())).thenReturn(Collections.emptyList());
-////        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any())).thenReturn(Collections.emptyList());
-////
-////        // Execute the service method
-////        List<WorkKindCountPerDayInsightDTO> result = insightsService.calculateAverageHappinessPerWorkKindCount(userId, sprint, teamId);
-////
-////        // Assertions
-////        assertNotNull(result, "Result should not be null");
-////        assertTrue(result.isEmpty(), "Work kind count per day insights should be empty");
-////
-////        // Verify that the repository methods were called
-////        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), any(), any());
-////        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
-////    }
-//
-//}
+package ch.fhnw.deardevbackend.services;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import ch.fhnw.deardevbackend.dto.insights.*;
+import ch.fhnw.deardevbackend.entities.SprintConfig;
+import ch.fhnw.deardevbackend.mapper.HappinessInsightMapper;
+import ch.fhnw.deardevbackend.mapper.WorkKindInsightMapper;
+import ch.fhnw.deardevbackend.repositories.InsightsRepository;
+import ch.fhnw.deardevbackend.repositories.HappinessSurveyRepository;
+import ch.fhnw.deardevbackend.repositories.SprintConfigRepository;
+import ch.fhnw.deardevbackend.repositories.WorkKindSurveyRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+@ExtendWith(MockitoExtension.class)
+public class InsightsServiceTest {
+
+    @InjectMocks
+    private InsightsService insightsService;
+
+    @Mock
+    private InsightsRepository insightsRepository;
+
+    @Mock
+    private HappinessSurveyRepository happinessSurveyRepository;
+
+    @Mock
+    private WorkKindSurveyRepository workKindSurveyRepository;
+
+    @Mock
+    private HappinessInsightMapper happinessInsightMapper;
+
+    @Mock
+    private WorkKindInsightMapper workKindInsightMapper;
+
+    @Mock
+    private SprintConfigRepository sprintConfigRepository;
+
+    private Integer userId;
+    private Integer teamId;
+    private Integer sprintId;
+    private SprintConfig sprintConfig;
+    List<EmotionInsightDTO> userEmotionInsights = Arrays.asList(
+            new EmotionInsightDTO(1, "Happy", 5L, 0L)
+    );
+    List<EmotionInsightDTO> teamEmotionInsights = Arrays.asList(
+            new EmotionInsightDTO(1, "Happy", 0L, 10L)
+    );
+
+    @BeforeEach
+    void setUp() {
+        userId = 1;
+        teamId = 1;
+        sprintId = 1;
+
+        sprintConfig = new SprintConfig();
+        sprintConfig.setStartDate(LocalDateTime.now().minusDays(14).toLocalDate());
+        sprintConfig.setEndDate(LocalDateTime.now().toLocalDate());
+    }
+
+    @Test
+    void getInsightsByTeamAndSprint() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{"2024-07-27", 5.0}));
+        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{"2024-07-27", 4.0}));
+
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-27", 5, 4));
+
+        InsightDTO result = insightsService.getInsightsByTeamAndSprint(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertNotNull(result.getHappinessInsights());
+        assertEquals(1, result.getHappinessInsights().size());
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
+    }
+
+    @Test
+    void getHappinessInsightsByTeam() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+        when(happinessSurveyRepository.findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{"2024-07-27", 5.0}));
+        when(insightsRepository.findTeamDailyAveragesAndDateRange(eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{"2024-07-27", 4.0}));
+
+        when(happinessInsightMapper.toDTO("2024-07-27", 5.0, 4.0))
+                .thenReturn(new HappinessInsightDTO("2024-07-27", 5, 5));
+
+        List<HappinessInsightDTO> result = insightsService.getHappinessInsightsByTeam(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(happinessSurveyRepository, times(1)).findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
+    }
+
+    @Test
+    void getWorkKindInsightsByUserAndTeam() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+        when(insightsRepository.findTopWorkKindsByUserAndDateRange(eq(userId), eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{1, "Development", 4.5, 10L}));
+        when(insightsRepository.findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{1, "Development", 4.0, 8L}));
+
+        when(workKindInsightMapper.toUserDTO(1, "Development", 4, 10))
+                .thenReturn(new WorkKindInsightDTO(1, "Development", 4, 10, 0, 0));
+        when(workKindInsightMapper.toTeamDTO(1, "Development", 4, 8))
+                .thenReturn(new WorkKindInsightDTO(1, "Development", 0, 0, 4, 8));
+
+        List<WorkKindInsightDTO> result = insightsService.getWorkKindInsightsByUserAndTeam(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(insightsRepository, times(1)).findTopWorkKindsByUserAndDateRange(eq(userId), eq(teamId), any(), any());
+        verify(insightsRepository, times(1)).findTopWorkKindsByTeamAndDateRange(eq(teamId), any(), any());
+    }
+
+    @Test
+    void getEmotionInsightsByUserAndTeam() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+        when(insightsRepository.findTopEmotionsByUserAndDateRange(eq(userId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{1, "Happy", 5L}));
+        when(insightsRepository.findTopEmotionsByTeamAndDateRange(eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{1, "Happy", 10L}));
+
+        List<EmotionInsightDTO> result = insightsService.getEmotionInsightsByUserAndTeam(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(insightsRepository, times(1)).findTopEmotionsByUserAndDateRange(eq(userId), any(), any());
+        verify(insightsRepository, times(1)).findTopEmotionsByTeamAndDateRange(eq(teamId), any(), any());
+    }
+
+    @Test
+    void calculateAverageHappinessPerWorkKindCount() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+
+        LocalDate mockDate = LocalDate.of(2024, 7, 27);
+
+        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{mockDate, 3}));
+        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any()))
+                .thenReturn(Collections.singletonList(new Object[]{mockDate, 3, 5.0}));
+
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(mockDate)))
+                .thenReturn(5.0);
+
+        List<WorkKindCountPerDayInsightDTO> result = insightsService.calculateAverageHappinessPerWorkKindCount(userId, sprintId, teamId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(3, result.get(0).getWorkKindCount());
+        assertEquals(5, result.get(0).getUserAverageHappiness());
+        assertEquals(5, result.get(0).getTeamAverageHappiness());
+
+        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any());
+        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(mockDate));
+    }
+
+    @Test
+    void calculateAverageHappinessPerWorkKindCount_multipleSurveys() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+
+        LocalDate date1 = LocalDate.of(2024, 7, 27);
+        LocalDate date2 = LocalDate.of(2024, 7, 28);
+        LocalDate date3 = LocalDate.of(2024, 7, 29);
+
+        when(insightsRepository.findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any()))
+                .thenReturn(Arrays.asList(
+                        new Object[]{date1, 3},
+                        new Object[]{date2, 3},
+                        new Object[]{date3, 3}
+                ));
+
+        when(insightsRepository.findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any()))
+                .thenReturn(Arrays.asList(
+                        new Object[]{date1, 3, 4},
+                        new Object[]{date2, 3, 6},
+                        new Object[]{date3, 3, 5}
+                ));
+
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date1)))
+                .thenReturn(5.0);
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date2)))
+                .thenReturn(7.0);
+        when(happinessSurveyRepository.findAverageScoreByUserIdAndDate(eq(userId), eq(date3)))
+                .thenReturn(6.0);
+
+        List<WorkKindCountPerDayInsightDTO> result = insightsService.calculateAverageHappinessPerWorkKindCount(userId, sprintId, teamId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(3, result.get(0).getWorkKindCount());
+
+        assertEquals(6, result.get(0).getUserAverageHappiness());
+
+        assertEquals(5, result.get(0).getTeamAverageHappiness());
+
+        verify(insightsRepository, times(1)).findWorkKindCountPerDayForUserWithDateRange(eq(userId), eq(teamId), any(), any());
+        verify(insightsRepository, times(1)).findTeamWorkKindCountPerDayWithDateRange(eq(teamId), any(), any());
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date1));
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date2));
+        verify(happinessSurveyRepository, times(1)).findAverageScoreByUserIdAndDate(eq(userId), eq(date3));
+    }
+
+    @Test
+    void getEmotionInsightsByUserAndTeam_differentEmotionsAndDays() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+
+        LocalDateTime startDate = LocalDateTime.of(2024, 7, 27, 0, 0);
+        LocalDateTime endDate = LocalDateTime.of(2024, 8, 10, 23, 59, 59);
+
+        doReturn(Arrays.asList(
+                new Object[]{1, "Happy", 5L},
+                new Object[]{2, "Sad", 3L}
+        )).when(insightsRepository).findTopEmotionsByUserAndDateRange(eq(userId), eq(startDate), eq(endDate));
+
+        doReturn(Arrays.asList(
+                new Object[]{1, "Happy", 10L},
+                new Object[]{3, "Angry", 4L}
+        )).when(insightsRepository).findTopEmotionsByTeamAndDateRange(eq(teamId), eq(startDate), eq(endDate));
+
+        List<EmotionInsightDTO> result = insightsService.getEmotionInsightsByUserAndTeam(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+
+        EmotionInsightDTO happyEmotion = result.stream()
+                .filter(insight -> insight.getEmotionId() == 1)
+                .findFirst()
+                .orElse(null);
+        assertNotNull(happyEmotion);
+        assertEquals(5L, happyEmotion.getUserCount());
+        assertEquals(10L, happyEmotion.getTeamCount());
+
+        EmotionInsightDTO sadEmotion = result.stream()
+                .filter(insight -> insight.getEmotionId() == 2)
+                .findFirst()
+                .orElse(null);
+        assertNotNull(sadEmotion);
+        assertEquals(3L, sadEmotion.getUserCount());
+        assertEquals(0L, sadEmotion.getTeamCount());
+
+        EmotionInsightDTO angryEmotion = result.stream()
+                .filter(insight -> insight.getEmotionId() == 3)
+                .findFirst()
+                .orElse(null);
+        assertNotNull(angryEmotion);
+        assertEquals(0L, angryEmotion.getUserCount());
+        assertEquals(4L, angryEmotion.getTeamCount());
+
+        verify(insightsRepository, times(1)).findTopEmotionsByUserAndDateRange(eq(userId), eq(startDate), eq(endDate));
+        verify(insightsRepository, times(1)).findTopEmotionsByTeamAndDateRange(eq(teamId), eq(startDate), eq(endDate));
+    }
+
+    @Test
+    void getHappinessInsightsByTeam_multipleDays() {
+        when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
+
+        LocalDate date1 = LocalDate.of(2024, 7, 27);
+        LocalDate date2 = LocalDate.of(2024, 7, 28);
+        LocalDate date3 = LocalDate.of(2024, 7, 29);
+
+        doReturn(Arrays.asList(
+                new Object[]{date1, 5.0},
+                new Object[]{date2, 6.0},
+                new Object[]{date3, 7.0}
+        )).when(happinessSurveyRepository)
+                .findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+
+        doReturn(Arrays.asList(
+                new Object[]{date1, 4.0},
+                new Object[]{date2, 3.0},
+                new Object[]{date3, 5.0}
+        )).when(insightsRepository)
+                .findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
+
+        doReturn(new HappinessInsightDTO("2024-07-27", 5, 4))
+                .when(happinessInsightMapper)
+                .toDTO("2024-07-27", 5.0, 4.0);
+
+        doReturn(new HappinessInsightDTO("2024-07-28", 6, 3))
+                .when(happinessInsightMapper)
+                .toDTO("2024-07-28", 6.0, 3.0);
+
+        doReturn(new HappinessInsightDTO("2024-07-29", 7, 5))
+                .when(happinessInsightMapper)
+                .toDTO("2024-07-29", 7.0, 5.0);
+
+        List<HappinessInsightDTO> result = insightsService.getHappinessInsightsByTeam(userId, teamId, sprintId);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+
+        verify(happinessSurveyRepository, times(1))
+                .findDailyAveragesByUserIdAndDateRange(eq(userId), any(), any());
+
+        verify(insightsRepository, times(1))
+                .findTeamDailyAveragesAndDateRange(eq(teamId), any(), any());
+    }
+
+
+
+}

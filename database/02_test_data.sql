@@ -36,21 +36,11 @@ VALUES ('Angry'),
        ('Energetic'),
        ('Exhausted'),
        ('Frustrated'),
-       ('Lonely'),
+       ('Energetic'),
        ('Motivated'),
        ('Nervous'),
        ('Overwhelmed'),
        ('Pessimistic'),
        ('Relaxed'),
-       ('Sick'),
+       ('Inspired'),
        ('Stressed');
-
-INSERT INTO happiness_survey (user_id, score)
-VALUES (100001, 4),
-       (100001, 2),
-       (100001, 3),
-       (100002, 1);
-
-INSERT INTO emotion_survey (user_id, emotion_id)
-VALUES (100001, 1),
-       (100002, 2);
