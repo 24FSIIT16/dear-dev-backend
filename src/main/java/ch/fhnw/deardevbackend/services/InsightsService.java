@@ -27,7 +27,6 @@ public class InsightsService {
     private final WorkKindInsightMapper workKindInsightMapper;
     private final SprintConfigRepository sprintConfigRepository;
 
-
     public InsightsService(InsightsRepository insightsRepository,
                            HappinessSurveyRepository happinessSurveyRepository,
                            HappinessInsightMapper happinessInsightMapper,
@@ -66,7 +65,6 @@ public class InsightsService {
             userAverages = happinessSurveyRepository.findDailyAveragesByUserId(userId);
             teamAverages = insightsRepository.findTeamDailyAverages(teamId);
         } else {
-            // todo make sure the sprint belongs to the team
             SprintConfig sprintConfig = sprintConfigRepository.findById(sprintId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid sprint ID: " + sprintId));
 
@@ -86,9 +84,9 @@ public class InsightsService {
         return userAverages.stream()
                 .map(userAvg -> {
                     String day = userAvg[0].toString();
-                    int userAverage = ((Number) userAvg[1]).intValue();  // Convert user average to Integer
-                    int teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();  // Convert team average to Integer
-                    return happinessInsightMapper.toDTO(day, (double) userAverage, (double) teamAverage);
+                    int userAverage = ((Number) userAvg[1]).intValue();
+                    int teamAverage = teamAveragesMap.getOrDefault(day, 0.0).intValue();
+                    return happinessInsightMapper.toDTO(day, userAverage, teamAverage);
                 })
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(h -> LocalDate.parse(h.getDay(), DateTimeFormatter.ISO_DATE)))
@@ -153,16 +151,14 @@ public class InsightsService {
 
         for (WorkKindInsightDTO teamInsight : teamWorkKindInsights) {
             if (teamInsight != null) {
-                merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> {
-                    return new WorkKindInsightDTO(
-                            userDto.getWorkKindId(),
-                            userDto.getWorkKindName(),
-                            userDto.getUserAverage() != null ? userDto.getUserAverage() : 0,
-                            userDto.getUserCount() != null ? userDto.getUserCount() : 0,
-                            teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0,
-                            teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0
-                    );
-                });
+                merged.merge(teamInsight.getWorkKindId(), teamInsight, (userDto, teamDto) -> new WorkKindInsightDTO(
+                        userDto.getWorkKindId(),
+                        userDto.getWorkKindName(),
+                        userDto.getUserAverage() != null ? userDto.getUserAverage() : 0,
+                        userDto.getUserCount() != null ? userDto.getUserCount() : 0,
+                        teamDto.getTeamAverage() != null ? teamDto.getTeamAverage() : 0,
+                        teamDto.getTeamCount() != null ? teamDto.getTeamCount() : 0
+                ));
             }
         }
 
