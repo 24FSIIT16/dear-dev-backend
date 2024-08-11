@@ -226,7 +226,7 @@ public class InsightsServiceTest {
 
         LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
         LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
-        
+
         doReturn(Arrays.asList(
                 new Object[]{1, "Happy", 5L},
                 new Object[]{2, "Sad", 3L}
