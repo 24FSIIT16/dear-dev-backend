@@ -224,9 +224,9 @@ public class InsightsServiceTest {
     void getEmotionInsightsByUserAndTeam_differentEmotionsAndDays() {
         when(sprintConfigRepository.findById(sprintId)).thenReturn(Optional.of(sprintConfig));
 
-        LocalDateTime startDate = LocalDateTime.of(2024, 7, 27, 0, 0);
-        LocalDateTime endDate = LocalDateTime.of(2024, 8, 10, 23, 59, 59);
-
+        LocalDateTime startDate = sprintConfig.getStartDate().atStartOfDay();
+        LocalDateTime endDate = sprintConfig.getEndDate().atTime(23, 59, 59);
+        
         doReturn(Arrays.asList(
                 new Object[]{1, "Happy", 5L},
                 new Object[]{2, "Sad", 3L}
