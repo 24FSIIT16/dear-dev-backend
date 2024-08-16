@@ -36,6 +36,12 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/yappi_db
 ```
 The project will be running on `http://localhost:8080`.
 
+##### Database setup
+
+Run in your favorite SQL client the following SQL script to create the needed database tables:
+
+`database/01_init.sql`
+
 ##### Start the project with docker-compose:
 ```bash
 docker compose up -d 
@@ -48,28 +54,30 @@ If you want to change for example the database name, you can do so in the `docke
 
 The API documentation is available on the following URL: http://localhost:8080/swagger-ui/index.html
 
-### 🛟 Usefull Docker commands
+### 🛟 Usefull Docker Commands
 List all running container:
-```
+
+```bash
 docker ps
 ```
 
 Clean and remove docker images / container
 
-```
+```bash
 sudo docker stop $(sudo docker ps -q)  true
 sudo docker rm $(sudo docker ps -a -q)  true
 sudo docker image rm $(sudo docker images -q) || true
 ```
 
 View logs of the running container:
-```
+
+```bash
 docker logs -f <container_id>
 ```
 
 Delete docker volumes:
 
-```
+```bash
 docker volumne prune -f
 ```
 
